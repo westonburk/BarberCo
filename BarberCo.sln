@@ -5,7 +5,9 @@ VisualStudioVersion = 17.10.34818.151
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BarberCo.Api", "BarberCo.Api\BarberCo.Api.csproj", "{1CC12B62-573D-490E-BE2E-81F413652B44}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BarberCo.DataAccess", "BarberCo.DataAccess\BarberCo.DataAccess.csproj", "{C298D11E-0930-48E5-9C2C-29FF9354A5E3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BarberCo.DataAccess", "BarberCo.DataAccess\BarberCo.DataAccess.csproj", "{C298D11E-0930-48E5-9C2C-29FF9354A5E3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BarberCo.SharedLibrary", "BarberCo.SharedLibrary\BarberCo.SharedLibrary.csproj", "{0EF0EDA8-C14F-449E-A181-090EAF275BDF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{C298D11E-0930-48E5-9C2C-29FF9354A5E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C298D11E-0930-48E5-9C2C-29FF9354A5E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C298D11E-0930-48E5-9C2C-29FF9354A5E3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0EF0EDA8-C14F-449E-A181-090EAF275BDF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0EF0EDA8-C14F-449E-A181-090EAF275BDF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0EF0EDA8-C14F-449E-A181-090EAF275BDF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0EF0EDA8-C14F-449E-A181-090EAF275BDF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
