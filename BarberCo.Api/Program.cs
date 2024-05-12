@@ -42,7 +42,7 @@ builder.Services.AddDbContext<DataContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
 
 builder.Services.AddIdentity<Barber, IdentityRole>()
-           .AddEntityFrameworkStores<DbContext>()
+           .AddEntityFrameworkStores<DataContext>()
            .AddDefaultTokenProviders();
 
 builder.Services.AddControllers();

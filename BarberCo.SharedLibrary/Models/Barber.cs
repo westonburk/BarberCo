@@ -10,5 +10,6 @@ namespace BarberCo.SharedLibrary.Models
     public class Barber : IdentityUser
     {
         public bool IsAvailable { get; set; }
+        public DateTime? DeletedOn { get; set; } = null;
     }
 }
