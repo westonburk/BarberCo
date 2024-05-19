@@ -18,7 +18,7 @@ namespace BarberCo.Api.Controllers
             _userManager = userManager;
         }
 
-        //[Authorize(Roles = "admin")]
+        [Authorize(Roles = "admin")]
         [HttpPost("register")]
         public async Task<ActionResult<Barber>> RegisterBarber([FromBody] BarberRegistrationDto barberDto)
         {

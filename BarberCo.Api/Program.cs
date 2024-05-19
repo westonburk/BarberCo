@@ -1,3 +1,4 @@
+using BarberCo.Api.Auth;
 using BarberCo.DataAccess;
 using BarberCo.SharedLibrary.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -5,12 +6,13 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
+builder.Services.AddScoped<JwtHelper>();
 
 var jwtKey = builder.Configuration.GetSection("Jwt:Key").Get<string>();
 var issuer = builder.Configuration.GetSection("Jwt:Issuer").Get<string>();
@@ -33,6 +35,7 @@ builder.Services.AddAuthentication(cfg =>
             ValidAudience = audience,
             ValidateIssuer = true,
             ValidateAudience = true,
+            RoleClaimType = ClaimTypes.Role,
             ClockSkew = TimeSpan.Zero,
         };
     });
@@ -41,9 +44,10 @@ builder.Services.AddAuthentication(cfg =>
 builder.Services.AddDbContext<DataContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
 
-builder.Services.AddIdentity<Barber, IdentityRole>()
+builder.Services.AddIdentityCore<Barber>()
+           .AddRoles<IdentityRole>()
            .AddEntityFrameworkStores<DataContext>()
-           .AddDefaultTokenProviders();
+           .AddSignInManager();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
