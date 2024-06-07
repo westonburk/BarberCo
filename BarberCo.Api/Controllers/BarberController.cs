@@ -1,5 +1,6 @@
 ﻿using BarberCo.Api.Dtos;
 using BarberCo.SharedLibrary.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -18,7 +19,8 @@ namespace BarberCo.Api.Controllers
             _userManager = userManager;
         }
 
-        [Authorize(Roles = "admin")]
+        //[Authorize(Roles = "admin")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "admin")]
         [HttpPost("register")]
         public async Task<ActionResult<Barber>> RegisterBarber([FromBody] BarberRegistrationDto barberDto)
         {
@@ -45,6 +47,7 @@ namespace BarberCo.Api.Controllers
         }
 
         [HttpGet]
+        [Authorize(AuthenticationSchemes = "Bearer,ApiKey")]
         public async Task<ActionResult<List<Barber>>> GetBarbers()
         {
             // TODO: fetch all barbers from repo

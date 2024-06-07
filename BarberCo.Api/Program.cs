@@ -1,6 +1,7 @@
 using BarberCo.Api.Auth;
 using BarberCo.DataAccess;
 using BarberCo.SharedLibrary.Models;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -38,7 +39,7 @@ builder.Services.AddAuthentication(cfg =>
             RoleClaimType = ClaimTypes.Role,
             ClockSkew = TimeSpan.Zero,
         };
-    });
+    }).AddScheme<AuthenticationSchemeOptions, ApiKeyAuthenticationHandler>("ApiKey", options => { });
 
 
 builder.Services.AddDbContext<DataContext>(options =>
