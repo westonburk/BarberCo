@@ -19,8 +19,7 @@ namespace BarberCo.Api.Controllers
             _userManager = userManager;
         }
 
-        //[Authorize(Roles = "admin")]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "admin")]
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = "admin")]
         [HttpPost("register")]
         public async Task<ActionResult<Barber>> RegisterBarber([FromBody] BarberRegistrationDto barberDto)
         {
