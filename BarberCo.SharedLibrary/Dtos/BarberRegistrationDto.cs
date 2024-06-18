@@ -1,5 +1,8 @@
-﻿namespace BarberCo.Api.Dtos
+﻿namespace BarberCo.SharedLibrary.Dtos
 {
+    /// <summary>
+    /// this dto is used for registering a new barber
+    /// </summary>
     public class BarberRegistrationDto
     {
         public string UserName { get; set; }

@@ -1,4 +1,5 @@
 ﻿using BarberCo.Api.Dtos;
+using BarberCo.SharedLibrary.Dtos;
 using BarberCo.SharedLibrary.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -21,7 +22,7 @@ namespace BarberCo.Api.Controllers
 
         [Authorize(AuthenticationSchemes = "Bearer", Roles = "admin")]
         [HttpPost("register")]
-        public async Task<ActionResult<Barber>> RegisterBarber([FromBody] BarberRegistrationDto barberDto)
+        public async Task<ActionResult<Barber>> RegisterBarber([FromBody] BarberRegistrationDto barberDto, CancellationToken token)
         {
             if (barberDto.Password != barberDto.PasswordConfirm)
             {
@@ -47,7 +48,7 @@ namespace BarberCo.Api.Controllers
 
         [HttpGet]
         [Authorize(AuthenticationSchemes = "Bearer,ApiKey")]
-        public async Task<ActionResult<List<Barber>>> GetBarbers()
+        public async Task<ActionResult<List<Barber>>> GetBarbers(CancellationToken token)
         {
             // TODO: fetch all barbers from repo
             await Task.CompletedTask;
