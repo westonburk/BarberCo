@@ -13,6 +13,7 @@ using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddApplicationInsightsTelemetry();
 builder.Services.AddScoped<JwtHelper>();
 
 var jwtKey = builder.Configuration.GetSection("Jwt:Key").Get<string>();
