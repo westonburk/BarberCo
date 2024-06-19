@@ -1,5 +1,6 @@
 using BarberCo.Api.Auth;
 using BarberCo.DataAccess;
+using BarberCo.DataAccess.Repositories;
 using BarberCo.SharedLibrary.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -13,6 +14,7 @@ using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddTransient<IBarberRepo, BarberRepo>();
 builder.Services.AddApplicationInsightsTelemetry();
 builder.Services.AddScoped<JwtHelper>();
 

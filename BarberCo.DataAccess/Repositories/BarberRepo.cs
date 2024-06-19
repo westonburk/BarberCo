@@ -35,9 +35,41 @@ namespace BarberCo.DataAccess.Repositories
                 .ToListAsync(token);
         }
 
-        public BarberRegistrationResultDto RegisterNewBarberAsync(BarberRegistrationDto dto)
+        public async Task<BarberRegistrationResultDto> RegisterNewBarberAsync(BarberRegistrationDto dto)
         {
-            throw new NotImplementedException();
+            var result = new BarberRegistrationResultDto() { Successful = false };
+
+            if (dto.Password != dto.PasswordConfirm) 
+            {
+                result.Errors = $"{nameof(dto.Password)} and {dto.PasswordConfirm} did not match.";
+                return result;
+            }
+
+            var newBarber = new Barber 
+            { 
+                UserName = dto.UserName,
+                Email = dto.Email,
+                PhoneNumber = dto.PhoneNumber
+            };
+
+            var createResult = await _userManager.CreateAsync(newBarber, dto.Password);
+            if (createResult.Succeeded == false)
+            {
+                result.Errors = "failed to create new barber with this information.";
+                return result;
+            }
+
+            var roleResult = await _userManager.AddToRoleAsync(newBarber, dto.Role);
+            if (roleResult.Succeeded == false)
+            {
+                result.Errors = $"{dto.UserName} could not be given role {dto.Role}";
+                return result;
+            }
+
+            result.Successful = true;
+            result.BarberFull = newBarber;
+            result.BarberDto = BarberDto.Get(newBarber);
+            return result;
         }
     }
 }

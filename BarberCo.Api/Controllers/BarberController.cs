@@ -1,4 +1,5 @@
 ﻿using BarberCo.Api.Dtos;
+using BarberCo.DataAccess.Repositories;
 using BarberCo.SharedLibrary.Dtos;
 using BarberCo.SharedLibrary.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -13,47 +14,50 @@ namespace BarberCo.Api.Controllers
     [ApiController]
     public class BarberController : ControllerBase
     {
-        private readonly UserManager<Barber> _userManager;
+        private readonly IBarberRepo _barberRepo;
+        private readonly ILogger<Barber> _logger;
 
-        public BarberController(UserManager<Barber> userManager)
+        public BarberController(IBarberRepo barberRepo, ILogger<Barber> logger)
         {
-            _userManager = userManager;
+            _barberRepo = barberRepo;
+            _logger = logger;
         }
 
         [Authorize(AuthenticationSchemes = "Bearer", Roles = "admin")]
         [HttpPost("register")]
-        public async Task<ActionResult<Barber>> RegisterBarber([FromBody] BarberRegistrationDto barberDto, CancellationToken token)
+        public async Task<ActionResult<BarberDto>> RegisterBarber([FromBody] BarberRegistrationDto barberDto, CancellationToken token)
         {
-            if (barberDto.Password != barberDto.PasswordConfirm)
+            try
             {
-                return BadRequest($"{nameof(barberDto.Password)} and {barberDto.PasswordConfirm} did not match.");
-            }
+                var result = await _barberRepo.RegisterNewBarberAsync(barberDto);
+                if (result.Successful == false)
+                {
+                    return BadRequest(result.Errors);
+                }
 
-            // TODO: refactor this into a repo
-            var newBarber = new Barber { UserName = barberDto.UserName, Email = barberDto.Email, PhoneNumber = barberDto.PhoneNumber };
-            var result = await _userManager.CreateAsync(newBarber, barberDto.Password);
-            if (result.Succeeded == false)
+                return Ok(result.BarberDto);
+            }
+            catch (Exception ex)
             {
-                return BadRequest(result.Errors);
+                _logger.LogError(ex, ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request.");
             }
-
-            var roleResult = await _userManager.AddToRoleAsync(newBarber, barberDto.Role);
-            if (roleResult.Succeeded == false)
-            {
-                return BadRequest(roleResult.Errors);
-            }
-
-            return Ok(newBarber);
         }
 
         [HttpGet]
         [Authorize(AuthenticationSchemes = "Bearer,ApiKey")]
-        public async Task<ActionResult<List<Barber>>> GetBarbers(CancellationToken token)
+        public async Task<ActionResult<List<BarberDto>>> GetBarbers(CancellationToken token)
         {
-            // TODO: fetch all barbers from repo
-            await Task.CompletedTask;
-
-            return Ok(new List<Barber>());
+            try
+            {
+                var dtos = await _barberRepo.GetAllBarbersAsync(token);
+                return Ok(dtos);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request.");
+            }
         }
     }
 }
