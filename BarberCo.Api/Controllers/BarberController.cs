@@ -30,7 +30,7 @@ namespace BarberCo.Api.Controllers
             try
             {
                 var result = await _barberRepo.RegisterNewBarberAsync(barberDto);
-                if (result.Successful == false)
+                if (result.Errors != null)
                 {
                     return BadRequest(result.Errors);
                 }
@@ -59,5 +59,25 @@ namespace BarberCo.Api.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request.");
             }
         }
+
+        [HttpGet]
+        [Authorize(AuthenticationSchemes = "Bearer,ApiKey")]
+        public async Task<ActionResult<List<BarberDto>>> GetBarber(CancellationToken token)
+        {
+            try
+            {
+                var dtos = await _barberRepo.GetAllBarbersAsync(token);
+                return Ok(dtos);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request.");
+            }
+        }
+
+        // put to change password
+        // put to change other fields
+        // delete
     }
 }

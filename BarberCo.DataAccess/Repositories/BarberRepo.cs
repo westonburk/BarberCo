@@ -20,6 +20,33 @@ namespace BarberCo.DataAccess.Repositories
             _userManager = userManager;
         }
 
+        public async Task<string> ChangePasswordAsync(Barber barber, BarberChangePasswordDto dto)
+        {
+            var identityResult = await _userManager.ChangePasswordAsync(barber,dto.CurrentPassword, dto.NewPassword);
+            if (identityResult.Succeeded)
+            {
+                return $"password changed for {barber.Id}";
+            }
+
+            return $"failed to change password for {barber.Id}";
+        }
+
+        public async Task<BarberResultDto> DeleteAsync(Barber barber)
+        {
+            var result = new BarberResultDto();
+
+            barber.DeletedOn = DateTime.Now;
+            var update = await _userManager.UpdateAsync(barber);
+            if (update.Succeeded)
+            {
+                result.BarberDto = BarberDto.Get(barber);
+                return result;
+            }
+
+            result.Errors = $"failed to delete {barber.Id}";
+            return result;
+        }
+
         public Task<List<BarberDto>> GetAllBarbersAsync(CancellationToken token, bool includeDeleted = false)
         {
             if (includeDeleted)
@@ -35,9 +62,19 @@ namespace BarberCo.DataAccess.Repositories
                 .ToListAsync(token);
         }
 
-        public async Task<BarberRegistrationResultDto> RegisterNewBarberAsync(BarberRegistrationDto dto)
+        public async Task<BarberDto?> GetByIdAsync(string id)
         {
-            var result = new BarberRegistrationResultDto() { Successful = false };
+            var result = await _userManager.FindByIdAsync(id);
+            if (result == null)
+                return null;
+
+            var dto = BarberDto.Get(result);
+            return dto;
+        }
+
+        public async Task<BarberResultDto> RegisterNewBarberAsync(BarberRegistrationDto dto)
+        {
+            var result = new BarberResultDto();
 
             if (dto.Password != dto.PasswordConfirm) 
             {
@@ -66,9 +103,27 @@ namespace BarberCo.DataAccess.Repositories
                 return result;
             }
 
-            result.Successful = true;
-            result.BarberFull = newBarber;
             result.BarberDto = BarberDto.Get(newBarber);
+            return result;
+        }
+
+        public async Task<BarberResultDto> UpdateAsync(BarberDto changed, Barber original)
+        {
+            var result = new BarberResultDto();
+
+            original.PhoneNumber = changed.PhoneNumber;
+            original.UserName = changed.UserName;
+            original.Email = changed.Email;
+            original.IsAvailable = changed.IsAvaliable;
+
+            var update = await _userManager.UpdateAsync(original);
+            if (update.Succeeded)
+            {
+                result.BarberDto = await GetByIdAsync(changed.Id);
+                return result;
+            }
+
+            result.Errors = $"failed to update {changed.Id}";
             return result;
         }
     }

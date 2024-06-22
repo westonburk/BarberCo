@@ -7,11 +7,9 @@ using System.Threading.Tasks;
 
 namespace BarberCo.SharedLibrary.Dtos
 {
-    public class BarberRegistrationResultDto
+    public class BarberResultDto
     {
-        public Barber? BarberFull { get; set; }
         public BarberDto? BarberDto { get; set; }
-        public bool Successful { get; set; }
-        public string? Errors { get; set; }
+        public string? Errors { get; set; } = null;
     }
 }
