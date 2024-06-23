@@ -14,7 +14,8 @@ namespace BarberCo.DataAccess.Repositories
         Task<BarberResultDto> RegisterNewBarberAsync(BarberRegistrationDto dto);
         Task<List<BarberDto>> GetAllBarbersAsync(CancellationToken token, bool includeDeleted = false);
         Task<BarberDto?> GetByIdAsync(string id);
-        Task<string> ChangePasswordAsync(Barber barber, BarberChangePasswordDto dto);
+        Task<Barber?> GetFullBarberByIdAsync(string id);
+        Task<BarberResultDto> ChangePasswordAsync(Barber barber, BarberChangePasswordDto dto);
         Task<BarberResultDto> UpdateAsync(BarberDto changed, Barber original);
         Task<BarberResultDto> DeleteAsync(Barber barber);
     }

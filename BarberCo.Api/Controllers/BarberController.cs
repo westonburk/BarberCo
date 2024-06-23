@@ -44,7 +44,7 @@ namespace BarberCo.Api.Controllers
             }
         }
 
-        [HttpGet]
+        [HttpGet("all")]
         [Authorize(AuthenticationSchemes = "Bearer,ApiKey")]
         public async Task<ActionResult<List<BarberDto>>> GetBarbers(CancellationToken token)
         {
@@ -60,14 +60,19 @@ namespace BarberCo.Api.Controllers
             }
         }
 
-        [HttpGet]
+        [HttpGet("{id}")]
         [Authorize(AuthenticationSchemes = "Bearer,ApiKey")]
-        public async Task<ActionResult<List<BarberDto>>> GetBarber(CancellationToken token)
+        public async Task<ActionResult<BarberDto>> GetBarber(string id)
         {
             try
             {
-                var dtos = await _barberRepo.GetAllBarbersAsync(token);
-                return Ok(dtos);
+                var dto = await _barberRepo.GetByIdAsync(id);
+                if (dto == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(dto);
             }
             catch (Exception ex)
             {
@@ -76,8 +81,85 @@ namespace BarberCo.Api.Controllers
             }
         }
 
-        // put to change password
-        // put to change other fields
-        // delete
+        [HttpPut("{id}")]
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        public async Task<ActionResult<BarberDto>> PutBarber(string id, BarberDto dto)
+        {
+            try
+            {
+                var barber = await _barberRepo.GetFullBarberByIdAsync(id);
+                if (barber == null)
+                {
+                    return NotFound();
+                }
+
+                var result = await _barberRepo.UpdateAsync(dto, barber);
+                if (result.Errors != null)
+                {
+                    return BadRequest(result.Errors);
+                }
+
+                return Ok(result.BarberDto);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request.");
+            }
+        }
+
+        [HttpPut("{id}/password")]
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        public async Task<ActionResult<BarberResultDto>> ChangeBarberPassword(string id, BarberChangePasswordDto dto)
+        {
+            try
+            {
+                var barber = await _barberRepo.GetFullBarberByIdAsync(id);
+                if (barber == null)
+                {
+                    return NotFound();
+                }
+
+                var result = await _barberRepo.ChangePasswordAsync(barber, dto);
+                if (result.Errors != null)
+                {
+                    return BadRequest(result.Errors);
+                }
+
+                return Ok(result.BarberDto);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request.");
+            }
+        }
+
+        [HttpDelete("{id}")]
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = "admin")]
+        public async Task<ActionResult<BarberResultDto>> DeleteBarber(string id)
+        {
+            try
+            {
+                var barber = await _barberRepo.GetFullBarberByIdAsync(id);
+                if (barber == null)
+                {
+                    return NotFound();
+                }
+
+                var result = await _barberRepo.DeleteAsync(barber);
+                if (result.Errors != null)
+                {
+                    return BadRequest(result.Errors);
+                }
+
+                return Ok(result.BarberDto);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request.");
+            }
+        }
     }
 }

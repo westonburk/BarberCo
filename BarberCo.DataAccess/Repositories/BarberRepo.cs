@@ -20,15 +20,19 @@ namespace BarberCo.DataAccess.Repositories
             _userManager = userManager;
         }
 
-        public async Task<string> ChangePasswordAsync(Barber barber, BarberChangePasswordDto dto)
+        public async Task<BarberResultDto> ChangePasswordAsync(Barber barber, BarberChangePasswordDto dto)
         {
+            var result = new BarberResultDto();
+
             var identityResult = await _userManager.ChangePasswordAsync(barber,dto.CurrentPassword, dto.NewPassword);
             if (identityResult.Succeeded)
             {
-                return $"password changed for {barber.Id}";
+                result.BarberDto = await GetByIdAsync(barber.Id);
+                return result;
             }
 
-            return $"failed to change password for {barber.Id}";
+            result.Errors = $"failed to change password for {barber.Id}";
+            return result;
         }
 
         public async Task<BarberResultDto> DeleteAsync(Barber barber)
@@ -70,6 +74,12 @@ namespace BarberCo.DataAccess.Repositories
 
             var dto = BarberDto.Get(result);
             return dto;
+        }
+
+        public async Task<Barber?> GetFullBarberByIdAsync(string id)
+        {
+            var result = await _userManager.FindByIdAsync(id);
+            return result;
         }
 
         public async Task<BarberResultDto> RegisterNewBarberAsync(BarberRegistrationDto dto)
