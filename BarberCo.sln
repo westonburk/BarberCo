@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BarberCo.DataAccess", "Barb
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BarberCo.SharedLibrary", "BarberCo.SharedLibrary\BarberCo.SharedLibrary.csproj", "{0EF0EDA8-C14F-449E-A181-090EAF275BDF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BarberCo.Web", "BarberCo.Web\BarberCo.Web.csproj", "{A955E311-35EA-4C9A-8E5E-909172EA494D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{0EF0EDA8-C14F-449E-A181-090EAF275BDF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0EF0EDA8-C14F-449E-A181-090EAF275BDF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0EF0EDA8-C14F-449E-A181-090EAF275BDF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A955E311-35EA-4C9A-8E5E-909172EA494D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A955E311-35EA-4C9A-8E5E-909172EA494D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A955E311-35EA-4C9A-8E5E-909172EA494D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A955E311-35EA-4C9A-8E5E-909172EA494D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
