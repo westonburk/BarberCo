@@ -1,0 +1,12 @@
+.sticky-top {
+    position: sticky;
+    top: 0;
+    z-index: 1000; /* Ensure it stays above content */
+}
+
+.hero {
+    background-size: cover;
+    background-position: center;
+}
+
+/* Add more styles as needed (e.g., for sections, responsiveness) */
