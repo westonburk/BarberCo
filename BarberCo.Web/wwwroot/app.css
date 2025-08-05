@@ -1,12 +1,37 @@
-.sticky-top {
-    position: sticky;
-    top: 0;
-    z-index: 1000; /* Ensure it stays above content */
-}
 
 .hero {
     background-size: cover;
     background-position: center;
 }
 
-/* Add more styles as needed (e.g., for sections, responsiveness) */
+
+.layout-wrapper {
+    background-color: rgb(23, 23, 23);
+    min-height: 100vh;
+    width: 100vw;
+    margin: 0;
+    padding: 0;
+}
+
+
+html, body {
+    height: 100%;
+    margin: 0;
+    background-color: wheat;
+}
+
+.page {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+main {
+    flex: 1;
+}
+
+.main-page {
+    flex: 1;
+    background-color: wheat;
+}
+
