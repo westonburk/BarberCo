@@ -5,7 +5,7 @@
 }
 
 .flex-wrapper {
-    background-color: rgb(23, 23, 23);
+    background-color: black;
     min-height: 100vh;
     width: 100vw;
     display: flex;
@@ -17,5 +17,12 @@
     /*min-height: 100vh;*/
     width: 100%;
     max-width: 1500px;
-    background-color: wheat;
+    background-color: var(--background-color);
+}
+
+:root {
+    --primary-color: #d19f68;
+    /*--secondary-color:;*/
+    --background-color: #1d1d1d;
+    --text-color: #ffffff;
 }
