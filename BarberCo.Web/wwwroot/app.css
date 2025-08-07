@@ -1,3 +1,9 @@
+:root {
+    --primary-color: #d19f68;
+    /*--secondary-color:;*/
+    --background-color: #1d1d1d;
+    --text-color: #ffffff;
+}
 
 .hero {
     background-size: cover;
@@ -14,15 +20,34 @@
 }
 
 .page {
-    /*min-height: 100vh;*/
+    min-height: 100vh;
     width: 100%;
     max-width: 1500px;
     background-color: var(--background-color);
 }
 
-:root {
-    --primary-color: #d19f68;
-    /*--secondary-color:;*/
-    --background-color: #1d1d1d;
-    --text-color: #ffffff;
+.navbar{
+    display: grid;
+    grid-template-columns: 100px auto 50px 50px 50px 50px;
+    align-items: center;
+    max-height: 150px
 }
+.navbar-brand img{
+    max-height: 150px;
+    height: auto;
+    width: auto;
+    display: block;
+}
+
+.nav-link {
+    color: var(--text-color);
+}
+
+.nav-link:hover {
+    color: var(--primary-color);
+}
+
+.nav-link.active {
+    color: var(--primary-color);
+}
+
