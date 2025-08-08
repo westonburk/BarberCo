@@ -28,28 +28,73 @@
 
 .navbar{
     display: flex;
-    align-content: flex-start;
-    padding: 1.5rem;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.5rem;
+    background-color: var(--background-color);
 }
+
 .navbar-brand img{
     max-height: 50px;
     height: auto;
     width: auto;
-    
 }
 
-.nav-link {
+/* Hamburger toggle */
+.nav-toggle{
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    width: 40px;
+    height: 40px;
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 6px;
+    cursor: pointer;
+}
+.nav-toggle .bar{
+    display: block;
+    width: 22px;
+    height: 2px;
+    background-color: var(--text-color);
+    margin: 0 auto;
+}
+
+/* Menu container */
+.nav-menu{
+    display: flex;
+    align-items: center;
+    gap: 3rem;
+}
+
+.nav-link{
     color: var(--text-color);
-    margin: 0px;
-    padding: 0px;
-    text-align: center;
+    text-decoration: none;
+    padding: 0.25rem 0.5rem;
 }
+.nav-link:hover{ color: var(--primary-color); }
+.nav-link.active{ color: var(--primary-color); }
 
-.nav-link:hover {
-    color: var(--primary-color);
-}
-
-.nav-link.active {
-    color: var(--primary-color);
+/* Mobile layout */
+@media (max-width: 992px){
+    .nav-toggle{ display: flex; }
+    .nav-menu{
+        position: fixed;
+        top: 72px;
+        right: 12px;
+        left: 12px;
+        display: none;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0;
+        background-color: var(--background-color);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 10px;
+        padding: 0.25rem;
+        z-index: 1000;
+    }
+    .nav-menu.open{ display: flex; }
+    .nav-link{ padding: 0.4rem 0.6rem; margin: 0; }
 }
 

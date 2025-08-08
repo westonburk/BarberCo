@@ -4,15 +4,23 @@
     <div class="page">
 
         <nav class="navbar">
-            <a class="navbar-brand nav-link" style="flex-grow: 1" href="">
-                <img src="logo.png" alt="BarberCo Logo"/>
+            <a class="navbar-brand" href="">
+                <img src="logo.png" alt="BarberCo Logo" />
             </a>
-            <div style="flex-grow: 8"></div>
-            <NavLink class="nav-link" style="flex-grow: 1" href="" Match="NavLinkMatch.All">Home</NavLink>
-            <NavLink class="nav-link" style="flex-grow: 1" href="appointment">Appointment</NavLink>
-            <NavLink class="nav-link" style="flex-grow: 1" href="services">Services</NavLink>
-            <NavLink class="nav-link" style="flex-grow: 1" href="contact">Contact</NavLink>
-            <NavLink class="nav-link" style="flex-grow: 1" href="about">About</NavLink>
+
+            <button class="nav-toggle" type="button" aria-label="Toggle navigation" aria-controls="mainNavMenu" aria-expanded="@isMenuOpen" @onclick="ToggleMenu">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </button>
+
+            <div id="mainNavMenu" class="nav-menu @(isMenuOpen ? "open" : null)">
+                <NavLink class="nav-link" @onclick="TryCloseMenu" href="" Match="NavLinkMatch.All">Home</NavLink>
+                <NavLink class="nav-link" @onclick="TryCloseMenu" href="appointment">Appointment</NavLink>
+                <NavLink class="nav-link" @onclick="TryCloseMenu" href="services">Services</NavLink>
+                <NavLink class="nav-link" @onclick="TryCloseMenu" href="contact">Contact</NavLink>
+                <NavLink class="nav-link" @onclick="TryCloseMenu" href="about">About</NavLink>
+            </div>
         </nav>
 
         <main>
@@ -27,8 +35,20 @@
     </div>
 </div>
 
-@*
-tasks:
-setup theme colors
-setup navigator
-*@
+@code {
+    private bool isMenuOpen;
+
+    private void ToggleMenu()
+    {
+        isMenuOpen = !isMenuOpen;
+    }
+
+    private void TryCloseMenu()
+    {
+        // closes hamburger menu in mobile after a item is selected
+        if(isMenuOpen)
+        {
+            isMenuOpen = false;
+        }
+    }
+}
