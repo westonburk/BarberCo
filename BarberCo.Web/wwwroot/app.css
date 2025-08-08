@@ -1,3 +1,4 @@
+/*global*/
 :root {
     --primary-color: #d19f68;
     /*--secondary-color:;*/
@@ -5,11 +6,19 @@
     --text-color: #ffffff;
 }
 
+
+/*Home*/
 .hero {
     background-size: cover;
     background-position: center;
 }
 
+
+/*MainLayout*/
+.footer {
+    color: var(--text-color);
+    font-size: 0.75rem;
+}
 .flex-wrapper {
     background-color: black;
     min-height: 100vh;
@@ -18,7 +27,6 @@
     flex-direction: column;
     align-items: center;
 }
-
 .page {
     min-height: 100vh;
     width: 100%;
@@ -27,15 +35,12 @@
     display: flex;
     flex-direction: column;
 }
-
 main{
     flex: 1 1 auto;
 }
-
 @media(max-width: 992px){
     .page{ min-height: 100dvh;}
 }
-
 .navbar{
     display: flex;
     align-items: center;
@@ -49,8 +54,6 @@ main{
     height: auto;
     width: auto;
 }
-
-/* Hamburger toggle */
 .nav-toggle{
     display: none;
     flex-direction: column;
@@ -70,14 +73,11 @@ main{
     background-color: var(--text-color);
     margin: 0 auto;
 }
-
-/* Menu container */
 .nav-menu{
     display: flex;
     align-items: center;
     gap: 3rem;
 }
-
 .nav-link{
     color: var(--text-color);
     text-decoration: none;
@@ -85,8 +85,6 @@ main{
 }
 .nav-link:hover{ color: var(--primary-color); }
 .nav-link.active{ color: var(--primary-color); }
-
-/* Mobile layout */
 @media (max-width: 992px){
     .nav-toggle{ display: flex; }
     .nav-menu{
