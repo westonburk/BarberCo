@@ -27,6 +27,17 @@
     left: 50%;
     transform: translate(-50%, -50%);
 }
+.hero-overlay .hero-btn {
+    background-color: var(--text-color);
+    color: var(--background-color);
+    border: none;
+    border-radius: 3px;
+    height: 2.5rem;
+    width: 8rem;
+}
+.hero-overlay .hero-btn:hover {
+    background-color: var(--primary-color);
+}
 
 
 /*MainLayout*/

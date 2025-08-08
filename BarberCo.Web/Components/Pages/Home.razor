@@ -1,21 +1,23 @@
 ﻿@page "/"
+@inject NavigationManager _nav
 
 <div class="hero">
     <img src="hero.png" class="image" />
     <div class="hero-overlay">
         <h1>Ready for a Fresh Cut?</h1>
-        <p>Book with BarberCo today.</p>
-        <button class="btn btn-primary">Book Now</button> 
+        <p>Stop by Mike's Today.</p>
+        <button class="hero-btn" @onclick="BookNow">Book Now</button> 
     </div>
 </div>
 
-
-<Appointment /> 
+<About />
 <Services />
 <Contact />
-<About />
 
 
 @code {
-
+    private void BookNow(MouseEventArgs args)
+    {
+        _nav.NavigateTo(nameof(Appointment));
+    }
 }
