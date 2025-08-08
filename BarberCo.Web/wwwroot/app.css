@@ -171,11 +171,16 @@ main {
 .about-container .aboutText {
     flex: 0 0 50%;
     color: var(--text-color);
+    align-content: center;
+    text-align: center;
+    margin: 0px 0.75rem 0px 0px;
+
 }
 .about-container .image{
     object-fit:contain;
     max-width: 100%;
     min-width: 0;
     flex: 1 1 50%;
+    filter: grayscale(95%);
 }
 
