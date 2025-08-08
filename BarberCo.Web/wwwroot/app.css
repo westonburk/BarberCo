@@ -163,10 +163,19 @@ main {
 
 /*About*/
 .about-container {
-    
+    margin: 0.75rem 0px 0px 0px;
+    display: flex;
+    flex-direction: row;
+    align-content:center;
+}
+.about-container .aboutText {
+    flex: 0 0 50%;
+    color: var(--text-color);
 }
 .about-container .image{
-    display:block;
-    width:100%;
+    object-fit:contain;
+    max-width: 100%;
+    min-width: 0;
+    flex: 1 1 50%;
 }
 
