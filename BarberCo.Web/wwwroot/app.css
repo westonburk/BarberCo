@@ -11,6 +11,22 @@
 .hero {
     background-size: cover;
     background-position: center;
+    /*background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url("hero.png");*/
+    background-image: url("hero.png");
+    /*height: 500px;*/
+    height: 500px;
+    position: relative;
+    text-align: center; /*
+    filter: blur(8px);
+    -webkit-filter: blur(8px);
+    background-repeat: no-repeat;*/
+}
+.hero-overlay {
+    position: absolute;
+    color: var(--text-color);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 
 
