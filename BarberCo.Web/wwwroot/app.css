@@ -24,6 +24,16 @@
     width: 100%;
     max-width: 1500px;
     background-color: var(--background-color);
+    display: flex;
+    flex-direction: column;
+}
+
+main{
+    flex: 1 1 auto;
+}
+
+@media(max-width: 992px){
+    .page{ min-height: 100dvh;}
 }
 
 .navbar{
