@@ -68,13 +68,13 @@ main {
     cursor: pointer;
 }
 
-    .nav-toggle .bar {
-        display: block;
-        width: 22px;
-        height: 2px;
-        background-color: var(--text-color);
-        margin: 0 auto;
-    }
+.nav-toggle .bar {
+    display: block;
+    width: 22px;
+    height: 2px;
+    background-color: var(--text-color);
+    margin: 0 auto;
+}
 
 .nav-menu {
     display: flex;
@@ -88,13 +88,13 @@ main {
     padding: 0.25rem 0.5rem;
 }
 
-    .nav-link:hover {
-        color: var(--primary-color);
-    }
+.nav-link:hover {
+    color: var(--primary-color);
+}
 
-    .nav-link.active {
-        color: var(--primary-color);
-    }
+.nav-link.active {
+    color: var(--primary-color);
+}
 
 @media (max-width: 992px) {
     .nav-toggle {
@@ -117,9 +117,9 @@ main {
         z-index: 1000;
     }
 
-        .nav-menu.open {
-            display: flex;
-        }
+    .nav-menu.open {
+        display: flex;
+    }
 
     .nav-link {
         padding: 0.4rem 0.6rem;
@@ -148,6 +148,9 @@ main {
     left: 50%;
     transform: translate(-50%, -50%);
 }
+.hero-overlay h1{
+    color: var(--primary-color);
+}
 .hero-overlay .hero-btn {
     background-color: var(--text-color);
     color: var(--background-color);
@@ -174,13 +177,15 @@ main {
     align-content: center;
     text-align: center;
     margin: 0px 0.75rem 0px 0px;
-
+}
+.about-container .aboutText h1{
+    color: var(--primary-color);
 }
 .about-container .image{
     object-fit:contain;
     max-width: 100%;
     min-width: 0;
     flex: 1 1 50%;
-    filter: grayscale(95%);
+    filter: grayscale(100%);
 }
 
