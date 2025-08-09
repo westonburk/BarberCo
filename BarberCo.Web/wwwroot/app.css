@@ -203,6 +203,7 @@ main {
     display: grid;
     grid-template-columns: auto auto;
     margin: 0.75rem 0px 0px 0px;
+    gap: 10px 20px;
 }
 @media (max-width: 992px) {
     .services-container .grid {
@@ -217,6 +218,8 @@ main {
 }
 .services-container .grid .grid-item .leader {
     flex: 1;
-    border-bottom: 1px solid var(--text-color);
-    transform: translateY(-0.15rem);
+    border-bottom: 1px dashed var(--text-color);
+    transform: translateY(-0.6rem);
+    margin: 0px 0.5rem 0px 0.5rem;
+
 }
