@@ -131,8 +131,6 @@ main {
 /*Home*/
 .hero {
     text-align: center;
-    background-size: cover;
-    background-position: center;
     position: relative;
     overflow: hidden;
 }
@@ -189,3 +187,21 @@ main {
     filter: grayscale(100%);
 }
 
+
+/*Services*/
+.services-container {
+    margin: 0.75rem 0px 0px 0px;
+    display: flex;
+    flex-direction: column;
+    align-content: center;
+    width: 100%;
+}
+.services-container h1 {
+    color: var(--primary-color);
+    flex: 1 1 20%;
+    text-align: center;
+}
+.services-container .grid{
+    flex: 1 1 80%;
+
+}
