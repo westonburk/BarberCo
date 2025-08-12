@@ -1,9 +1,44 @@
 ﻿@page "/contact"
 
 <div class="contact-container">
-    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d6312.862677093851!2d-73.98823395938666!3d40.74844047150719!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c259a9b3117469%3A0xd134e199a405a163!2sEmpire%20State%20Building!5e1!3m2!1sen!2sus!4v1754778205889!5m2!1sen!2sus" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+    <h1>Contact</h1>
+    <div class="grid">
+        <div class="hours">
+            @* <p>Hours</p> *@
+            <ul>
+                @foreach (var item in mockHours.OrderBy(x => x.Item1))
+                {
+                    <li>@item.Item2</li>
+                }
+            </ul>
+        </div>
+        <div class="contact-info">
+            <div class="contact-item">
+                <i class="material-icons">mail</i>
+                <span>example@email.com</span>
+            </div>
+            <div class="contact-item">
+                <i class="material-icons">phone</i>
+                <span>(123) 456-7890</span>
+            </div>
+            <div class="contact-item">
+                <i class="material-icons">location_on</i>
+                <a href="https://maps.app.goo.gl/yKo3WYLA3aU5LCt2A">20 W 34th St., New York, NY 10001</a>
+            </div>
+        </div>
+        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d6312.862677093851!2d-73.98823395938666!3d40.74844047150719!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c259a9b3117469%3A0xd134e199a405a163!2sEmpire%20State%20Building!5e1!3m2!1sen!2sus!4v1754778205889!5m2!1sen!2sus" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+    </div>
 </div>
 
 @code {
-
+    public List<(int, string)> mockHours =
+    [
+            (3, "Thursday 7am-8pm"),
+            (1, "Tuesday 7am-8pm"),
+            (2, "Wednesday 7am-8pm"),
+            (5, "Saturday 7am-8pm"),
+            (0, "Monday 7am-8pm"),
+            (4, "Friday 7am-8pm"),
+            (6, "Sunday Closed")
+    ];
 }
