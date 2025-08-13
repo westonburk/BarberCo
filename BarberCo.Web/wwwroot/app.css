@@ -132,6 +132,7 @@ main {
 }
 .hero-overlay h1 {
     color: var(--primary-color);
+    outline: 0px;
 }
 .hero-overlay .hero-btn {
     background-color: var(--text-color);
