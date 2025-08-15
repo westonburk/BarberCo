@@ -1,3 +1,4 @@
+using BarberCo.SharedLibrary.Services;
 using BarberCo.Web.Components;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -5,6 +6,15 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+builder.Services.AddHttpClient("BarberCoAPI", client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["ApiBaseUrl"]);
+    client.DefaultRequestHeaders.Add("ApiKey", builder.Configuration["ApiKey"]);
+});
+
+// dependency injection
+builder.Services.AddScoped<IHourService, HourService>();
 
 var app = builder.Build();
 

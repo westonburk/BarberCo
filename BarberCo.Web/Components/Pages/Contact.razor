@@ -1,16 +1,28 @@
 ﻿@page "/contact"
+@using BarberCo.SharedLibrary.Models
+@inject IHourService HourService
 
 <div class="contact-container">
     <h1>Contact</h1>
     <div class="grid">
         <div class="hours">
-            @* <p>Hours</p> *@
-            <ul>
-                @foreach (var item in mockHours.OrderBy(x => x.Item1))
-                {
-                    <li>@item.Item2</li>
-                }
-            </ul>
+            @if (isLoading)
+            {
+                <p>Loading hours...</p>
+            }
+            else if (errorMessage != null)
+            {
+                <p class="error">@errorMessage</p>
+            }
+            else
+            {
+                <ul>
+                    @foreach (var item in hours.OrderBy(x => x.Item1))
+                    {
+                        <li>@item.Item2.DayOfWeek @item.Item2.StartTime.ToString("htt")-@item.Item2.EndTime.ToString("htt")</li>
+                    }
+                </ul>
+            }
         </div>
         <div class="contact-info">
             <div class="contact-item">
@@ -31,14 +43,30 @@
 </div>
 
 @code {
-    public List<(int, string)> mockHours =
-    [
-            (3, "Thursday 7am-8pm"),
-            (1, "Tuesday 7am-8pm"),
-            (2, "Wednesday 7am-8pm"),
-            (5, "Saturday 7am-8pm"),
-            (0, "Monday 7am-8pm"),
-            (4, "Friday 7am-8pm"),
-            (6, "Sunday Closed")
-    ];
+    private List<(int, Hour)> hours;
+    private bool isLoading = true;
+    private string? errorMessage = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadHours();
+        await base.OnInitializedAsync();
+    }
+
+    private async Task LoadHours()
+    {
+        try
+        {
+            hours = await HourService.GetAllHoursAsync();
+        }
+        catch (Exception)
+        {
+            errorMessage = "Failed to connect to the API";
+            throw;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
 }
