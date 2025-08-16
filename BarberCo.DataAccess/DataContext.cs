@@ -16,6 +16,7 @@ namespace BarberCo.DataAccess
         }
 
         public DbSet<Hour> Hours { get; set; }
+        public DbSet<Service> Services { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
