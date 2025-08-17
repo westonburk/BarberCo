@@ -1,5 +1,6 @@
 ﻿using BarberCo.SharedLibrary.Dtos;
 using BarberCo.SharedLibrary.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,35 +19,38 @@ namespace BarberCo.DataAccess.Repositories
             _context = context;
         }
 
-        public Task<Service> CreateServiceAsync(ServiceUpdateDto newService, CancellationToken token)
+        public async Task<Service> CreateServiceAsync(ServiceUpdateDto newService, CancellationToken token)
         {
             var service = new Service();
             service.Name = newService.Name;
             service.Price = newService.Price;
             _context.Services.Add(service);
-            _context.SaveChangesAsync(token);
-
-            throw new NotImplementedException();
+            await _context.SaveChangesAsync(token);
+            return service;
         }
 
         public Task DeleteServiceAsync(Service service, CancellationToken token)
         {
-            throw new NotImplementedException();
+            _context.Services.Remove(service);
+            return _context.SaveChangesAsync(token);
         }
 
         public Task<List<Service>> GetAllServicesAsync(CancellationToken token)
         {
-            throw new NotImplementedException();
+            return _context.Services.ToListAsync(token);
         }
 
-        public Task<Service?> GetServiceByIdAsync(int Id, CancellationToken token)
+        public async Task<Service?> GetServiceByIdAsync(int Id, CancellationToken token)
         {
-            throw new NotImplementedException();
+            return await _context.Services.FindAsync([Id], token);
         }
 
-        public Task<Service> UpdateServiceAsync(Service service, ServiceUpdateDto changed, CancellationToken token)
+        public async Task<Service> UpdateServiceAsync(Service service, ServiceUpdateDto changed, CancellationToken token)
         {
-            throw new NotImplementedException();
+            service.Name = changed.Name;
+            service.Price = changed.Price;
+            await _context.SaveChangesAsync(token);
+            return service;
         }
     }
 }
