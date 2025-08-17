@@ -21,7 +21,7 @@ namespace BarberCo.Api.Controllers
 
         [HttpGet()]
         [Authorize(AuthenticationSchemes = "Bearer,ApiKey")]
-        public async Task<ActionResult<Hour>> GetAllHours(CancellationToken token)
+        public async Task<ActionResult<List<Hour>>> GetAllHours(CancellationToken token)
         {
             try
             {

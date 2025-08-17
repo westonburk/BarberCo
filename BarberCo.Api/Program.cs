@@ -16,6 +16,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddTransient<IBarberRepo, BarberRepo>();
 builder.Services.AddTransient<IHourRepo, HourRepo>();
+builder.Services.AddTransient<IServiceRepo, ServiceRepo>();
 builder.Services.AddApplicationInsightsTelemetry();
 builder.Services.AddScoped<JwtHelper>();
 
