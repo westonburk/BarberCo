@@ -1,27 +1,57 @@
 ﻿@page "/services"
+@inject IServiceService serviceService
+@inject ILogger<Service> logger
 
 <div class="services-container">
     <h1>Services</h1>
     <div class="grid"> 
-        @foreach (var item in mockItems)
+        @if (isLoading)
         {
-            <div class="grid-item">
-                <span>@item.Item1</span>
-                <span class="leader" aria-hidden="true"></span>
-                <span>@item.Item2.ToString("C0")</span>
-            </div>
+            <p>Loading services...</p>
+        }
+        else if (errorMessage != null)
+        {
+            <p class="error">@errorMessage</p>
+        }
+        else
+        {
+            @foreach (var service in services)
+            {
+                <div class="grid-item">
+                    <span>@service.Name</span>
+                    <span class="leader" aria-hidden="true"></span>
+                    <span>@service.Price.ToString("C2")</span>
+                </div>
+            }
         }
     </div>
 </div>
 
 @code {
-    public List<(string, decimal)> mockItems =
-    [
-        ("Haircut", 50m),
-        ("Beard Trim", 20m),
-        ("Face Waxing", 10m),
-        ("Shave", 20m),
-        ("Shampoo & Conditioner", 40m),
-        ("Hot Shave", 30m),
-    ];
+    private List<Service> services;
+    private bool isLoading = true;
+    private string? errorMessage = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadServices();
+        await base.OnInitializedAsync();
+    }
+
+    private async Task LoadServices()
+    {
+        try
+        {
+            services = await serviceService.GetAllServicesAsync();
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"failed to load {nameof(Service)} from api");
+            errorMessage = "Failed to connect to the API";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
 }

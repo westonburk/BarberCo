@@ -1,6 +1,6 @@
 ﻿@page "/contact"
-@using BarberCo.SharedLibrary.Models
 @inject IHourService HourService
+@inject ILogger<Hour> logger
 
 <div class="contact-container">
     <h1>Contact</h1>
@@ -59,10 +59,10 @@
         {
             hours = await HourService.GetAllHoursAsync();
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            logger.LogError(ex, $"failed to load {nameof(Hour)} from api");
             errorMessage = "Failed to connect to the API";
-            throw;
         }
         finally
         {
