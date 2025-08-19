@@ -14,6 +14,7 @@ builder.Services.AddHttpClient("BarberCoAPI", client =>
 });
 
 // dependency injection
+builder.Services.AddScoped<IBarberCoApiService, BarberCoApiService>();
 builder.Services.AddScoped<IHourService, HourService>();
 
 var app = builder.Build();

@@ -12,46 +12,34 @@ namespace BarberCo.SharedLibrary.Services
 {
     public class HourService : IHourService
     {
-        private readonly ILogger<HourService> _logger;
-        private readonly HttpClient _httpClient;
+        private readonly IBarberCoApiService _apiService;
 
-        public HourService(IHttpClientFactory httpClientFactory, ILogger<HourService> logger)
+        public HourService(IBarberCoApiService apiService)
         {
-            _httpClient = httpClientFactory.CreateClient("BarberCoAPI");
-            _logger = logger;
+            _apiService = apiService;
         }
 
         public async Task<List<(int sort, Hour hour)>> GetAllHoursAsync()
         {
-            try
+            var hours = await _apiService.GetAsync<List<Hour>>("hour");
+            var results = new List<(int sort, Hour hour)>();
+            foreach (var hour in hours)
             {
-                var response = await _httpClient.GetAsync("hour");
-                response.EnsureSuccessStatusCode();
-                var hours = await response.Content.ReadFromJsonAsync<List<Hour>>();
-                var results = new List<(int sort, Hour hour)>();
-                foreach (var hour in hours)
+                var sort = hour.DayOfWeek.ToLower() switch
                 {
-                    var sort = hour.DayOfWeek.ToLower() switch
-                    {
-                        "monday" => 0,
-                        "tuesday" => 1,
-                        "wednesday" => 2,
-                        "thursday" => 3,
-                        "friday" => 4,
-                        "saturday" => 5,
-                        "sunday" => 6,
-                        _ => 7
-                    };
+                    "monday" => 0,
+                    "tuesday" => 1,
+                    "wednesday" => 2,
+                    "thursday" => 3,
+                    "friday" => 4,
+                    "saturday" => 5,
+                    "sunday" => 6,
+                    _ => 7
+                };
 
-                    results.Add((sort, hour));
-                }
-                return results;
+                results.Add((sort, hour));
             }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error fetching hours");
-                throw;
-            }
+            return results;
         }
     }
 }
