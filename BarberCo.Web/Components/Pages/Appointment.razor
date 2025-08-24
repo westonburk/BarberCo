@@ -1,8 +1,51 @@
 ﻿@page "/appointment"
+@using System.ComponentModel.DataAnnotations
 
-<h1>Appointment</h1>
-<p>Book your appointment here. [Add form or calendar logic later]</p>
+<div class="appointment-container">
+    <h1>Appointment</h1>
+    <EditForm Model="@formData" OnInvalidSubmit="@HandleValidSubmit">
+        <DataAnnotationsValidator />
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="name">Name:</label>
+                <InputText id="name" class="form-control" @bind-Value="formData.Name" />
+                <ValidationMessage For="@(() => formData.Name)" />
+            </div>
+            <div class="col-md-6">
+                <label for="phone">Phone:</label>
+                <InputText id="phone" class="form-control" @bind-Value="formData.Phone" />
+                <ValidationMessage For="@(() => formData.Phone)" />
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-12">
+                
+            </div>
+        </div>
+        <button type="submit" class="btn-appointment">Submit</button>
+
+    </EditForm>
+</div>
+
 
 @code {
+    private FormData formData = new FormData();
 
+    private void HandleValidSubmit()
+    {
+        
+    }
+
+    public class FormData
+    {
+        [Required]
+        public string Name { get; set; }
+
+        [Required]
+        [Phone]
+        public string Phone { get; set; }
+
+        
+
+    }
 }
