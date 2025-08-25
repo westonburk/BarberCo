@@ -21,25 +21,37 @@
         </div>
         <div class="row mb-3">
             <div class="col-md-6">
-                <label for="services-multiselect">Service(s):</label>
-                <select id="services-multiselect" multiple>
-                    @foreach (var service in services)
-                    {
-                        <option value="@service">@($"{service.Name}   {service.Price:C2}")</option>
-                    }
-                </select>
-
+                <label for="date">Date:</label>
+                <InputText id="date" class="form-control" @bind-Value="formData.Name" />
+                <ValidationMessage For="@(() => formData.Name)" />
+            </div>
+            <div class="col-md-6">
+                <label for="time">Time:</label>
+                <InputText id="phone" class="form-control" @bind-Value="formData.Phone" />
+                <ValidationMessage For="@(() => formData.Phone)" />
             </div>
         </div>
+        <div class="row mb-3">
+            <label for="services-multiselect">Select Service(s):</label>
+            <div class="services-list" id="services-multiselect">
+                @foreach (var service in allServices)
+                {
+                    <div class="service-item @(formData.SelectedServices.Contains(service) ? "selected-service" : null)"
+                         @onclick="() => ToggleServiceSelection(service)">
+                        @($"{service.Name}   {service.Price:C2}")
+                    </div>
+                }
+            </div>
+            <ValidationMessage For="@(() => formData.SelectedServices)" />
+        </div>
         <button type="submit" class="btn-appointment">Submit</button>
-
     </EditForm>
 </div>
 
 
 @code {
     private FormData formData = new FormData();
-    private List<Service> services = new();
+    private List<Service> allServices = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -51,7 +63,7 @@
     {
         try
         {
-            services = await ServiceService.GetAllServicesAsync();
+            allServices = await ServiceService.GetAllServicesAsync();
         }
         catch (Exception ex)
         {
@@ -59,9 +71,21 @@
         }
     }
 
+    private void ToggleServiceSelection(Service service)
+    {
+        if (formData.SelectedServices.Contains(service))
+        {
+            formData.SelectedServices.Remove(service);
+        }
+        else
+        {
+            formData.SelectedServices.Add(service);
+        }
+    }
+
     private void HandleValidSubmit()
     {
-        
+        var s = formData.SelectedServices;
     }
 
     public class FormData
@@ -73,7 +97,6 @@
         [Phone]
         public string Phone { get; set; }
 
-        
-
+        public List<Service> SelectedServices { get; set; } = new();
     }
 }

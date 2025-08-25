@@ -278,7 +278,7 @@ main {
 .appointment-container .btn-appointment {
     background-color: var(--text-color);
     color: var(--background-color);
-    border-radius: 3px;
+    border-radius: 0.5rem;
     height: 2.5rem;
     width: 8rem;
     float: right;
@@ -286,4 +286,20 @@ main {
 .appointment-container .btn-appointment:hover {
     background-color: var(--primary-color);
     color: var(--background-color);
+}
+.appointment-container .services-list {
+    display: flex;
+    flex-wrap: wrap;
+}
+.appointment-container .services-list .service-item {
+    margin: 0.3rem;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    border-color: var(--text-color);
+    border: solid;
+    border-width: 0.01rem;
+}
+.appointment-container .services-list .selected-service {
+    border-color: transparent;
+    background-color: var(--primary-color);
 }
