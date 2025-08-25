@@ -1,5 +1,7 @@
 ﻿@page "/appointment"
 @using System.ComponentModel.DataAnnotations
+@inject IServiceService ServiceService
+@inject ILogger<Service> logger
 
 <div class="appointment-container">
     <h1>Appointment</h1>
@@ -18,8 +20,15 @@
             </div>
         </div>
         <div class="row mb-3">
-            <div class="col-12">
-                
+            <div class="col-md-6">
+                <label for="services-multiselect">Service(s):</label>
+                <select id="services-multiselect" multiple>
+                    @foreach (var service in services)
+                    {
+                        <option value="@service">@($"{service.Name}   {service.Price:C2}")</option>
+                    }
+                </select>
+
             </div>
         </div>
         <button type="submit" class="btn-appointment">Submit</button>
@@ -30,6 +39,25 @@
 
 @code {
     private FormData formData = new FormData();
+    private List<Service> services = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadServicesAsync();
+        await base.OnInitializedAsync();
+    }
+
+    private async Task LoadServicesAsync()
+    {
+        try
+        {
+            services = await ServiceService.GetAllServicesAsync();
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"failed to load {nameof(Service)} from api");
+        }
+    }
 
     private void HandleValidSubmit()
     {

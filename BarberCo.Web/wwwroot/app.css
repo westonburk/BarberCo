@@ -276,15 +276,14 @@ main {
     /*margin: 0px 0px 0.75rem 0px;*/
 }
 .appointment-container .btn-appointment {
-    background-color: var(--background-color);
-    color: var(--text-color);
+    background-color: var(--text-color);
+    color: var(--background-color);
     border-radius: 3px;
-    border-color: var(--text-color);
     height: 2.5rem;
     width: 8rem;
+    float: right;
 }
 .appointment-container .btn-appointment:hover {
     background-color: var(--primary-color);
     color: var(--background-color);
-    border: none;
 }

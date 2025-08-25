@@ -49,11 +49,11 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadHours();
+        await LoadHoursAsync();
         await base.OnInitializedAsync();
     }
 
-    private async Task LoadHours()
+    private async Task LoadHoursAsync()
     {
         try
         {
