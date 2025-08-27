@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace BarberCo.Api.Controllers
 {
-
     [Route("api/[controller]")]
     [ApiController]
     public class ServiceController : Controller

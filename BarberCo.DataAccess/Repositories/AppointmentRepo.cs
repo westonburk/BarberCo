@@ -1,4 +1,5 @@
 ﻿using BarberCo.SharedLibrary.Dtos;
+using BarberCo.SharedLibrary.Exceptions;
 using BarberCo.SharedLibrary.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -22,29 +23,29 @@ namespace BarberCo.DataAccess.Repositories
         public async Task<Appointment> CreateAppointmentAsync(AppointmentUpdateDto newAppointment, CancellationToken token)
         {
             if (newAppointment.DateTime < DateTime.Now)
-                throw new Exception($"cannot create {nameof(Appointment)} invalid time");
+                throw new DataValidationException($"cannot create {nameof(Appointment)} invalid time");
 
             var dayOfWeek = newAppointment.DateTime.DayOfWeek.ToString();
             var hour = await _context.Hours.FirstAsync(x => x.DayOfWeek == dayOfWeek, token);
             if (hour.IsClosed)
-                throw new Exception($"{dayOfWeek} is closed cannot create {nameof(Appointment)}");
+                throw new DataValidationException($"{dayOfWeek} is closed cannot create {nameof(Appointment)}");
 
             var services = await _context.Services
                 .Where(x => newAppointment.ServiceIds.Contains(x.Id))
                 .ToListAsync(token);
 
             if (services.Count == 0)
-                throw new Exception($"cannot create {nameof(Appointment)} without service(s)");
+                throw new DataValidationException($"cannot create {nameof(Appointment)} without service(s)");
 
             if (string.IsNullOrWhiteSpace(newAppointment.CustomerName))
-                throw new Exception($"{nameof(Appointment.CustomerName)} cannot be empty");
+                throw new DataValidationException($"{nameof(Appointment.CustomerName)} cannot be empty");
                 
             if (string.IsNullOrWhiteSpace(newAppointment.CustomerPhone))
-                throw new Exception($"{nameof(Appointment.CustomerPhone)} cannot be empty");
+                throw new DataValidationException($"{nameof(Appointment.CustomerPhone)} cannot be empty");
 
             var compareDate = new DateTime(2000, 12, 1, newAppointment.DateTime.Hour, newAppointment.DateTime.Minute, 0);
             if ((compareDate <= hour.StartTime && compareDate <= hour.EndTime) == false)
-                throw new Exception($"cannot create {nameof(Appointment)} outside business hours");
+                throw new DataValidationException($"cannot create {nameof(Appointment)} outside business hours");
 
             var appointment = new Appointment();
             appointment.CustomerName = newAppointment.CustomerName;
