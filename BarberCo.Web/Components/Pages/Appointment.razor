@@ -1,7 +1,7 @@
 ﻿@page "/appointment"
 @using System.ComponentModel.DataAnnotations
 @inject IServiceService ServiceService
-@inject ILogger<Service> logger
+@inject ILogger<Appointment> logger
 
 <div class="appointment-container">
     <h1>Appointment</h1>
@@ -22,7 +22,7 @@
         <div class="row mb-3">
             <div class="col-md-6">
                 <label for="date">Date:</label>
-                <InputDate id="date" class="form-control" @bind-Value:after="DateChanged" @bind-Value="formData.Date" />
+                <InputDate id="date" class="form-control" @bind-Value:after="AfterDateChanged" @bind-Value="formData.Date" />
                 <ValidationMessage For="@(() => formData.Date)" />
             </div>
             <div class="col-md-6">
@@ -83,7 +83,7 @@
         }
     }
 
-    private async Task DateChanged()
+    private async Task AfterDateChanged()
     {
         formData.Time = null;
         times.Clear();
