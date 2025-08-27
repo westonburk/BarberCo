@@ -12,5 +12,6 @@ namespace BarberCo.SharedLibrary.Models
         public string DayOfWeek { get; set; }
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }
+        public bool IsClosed { get; set; }
     }
 }

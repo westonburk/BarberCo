@@ -32,11 +32,25 @@ namespace BarberCo.DataAccess.Repositories
 
         public async Task<Hour> UpdateHourAsync(Hour hour, HourUpdateDto changed, CancellationToken token)
         {
-            hour.StartTime = changed.StartTime;
-            hour.EndTime = changed.EndTime;
+            var startTime = new DateTime(2000, 12, 1, hour.StartTime.Hour, hour.StartTime.Minute, 0);
+            var endTime = new DateTime(2000, 12, 1, hour.EndTime.Hour, hour.EndTime.Minute, 0);
+            if (changed.IsClosed == false && startTime > endTime)
+                throw new Exception($"{nameof(hour.StartTime)} cannot be before {nameof(hour.EndTime)}");
+
+            hour.IsClosed = changed.IsClosed;
+            if (hour.IsClosed)
+            {
+                hour.StartTime = default;
+                hour.EndTime = default;
+            }
+            else 
+            {
+                hour.StartTime = startTime;
+                hour.EndTime = endTime;
+            }
 
             await _context.SaveChangesAsync(token);
-            return GetHourByIdAsync(hour.Id, token).Result;
+            return await GetHourByIdAsync(hour.Id, token);
         }
     }
 }

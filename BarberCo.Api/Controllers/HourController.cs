@@ -47,7 +47,7 @@ namespace BarberCo.Api.Controllers
                     return NotFound();
                 }
 
-                var result = await _hourRepo.UpdateHourAsync(original, hour,token);
+                var result = await _hourRepo.UpdateHourAsync(original, hour, token);
                 return Ok(result);
             }
             catch (Exception ex)

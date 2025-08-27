@@ -19,7 +19,14 @@
                 <ul>
                     @foreach (var item in hours.OrderBy(x => x.Item1))
                     {
-                        <li>@item.Item2.DayOfWeek @item.Item2.StartTime.ToString("htt")-@item.Item2.EndTime.ToString("htt")</li>
+                        if (item.Item2.IsClosed)
+                        {
+                            <li>@item.Item2.DayOfWeek Closed</li>
+                        }
+                        else
+                        {
+                            <li>@item.Item2.DayOfWeek @item.Item2.StartTime.ToString("htt")-@item.Item2.EndTime.ToString("htt")</li>
+                        }
                     }
                 </ul>
             }
