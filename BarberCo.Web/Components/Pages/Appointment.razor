@@ -22,13 +22,19 @@
         <div class="row mb-3">
             <div class="col-md-6">
                 <label for="date">Date:</label>
-                <InputText id="date" class="form-control" @bind-Value="formData.Name" />
-                <ValidationMessage For="@(() => formData.Name)" />
+                <InputDate id="date" class="form-control" @bind-Value:after="DateChanged" @bind-Value="formData.Date" />
+                <ValidationMessage For="@(() => formData.Date)" />
             </div>
             <div class="col-md-6">
                 <label for="time">Time:</label>
-                <InputText id="phone" class="form-control" @bind-Value="formData.Phone" />
-                <ValidationMessage For="@(() => formData.Phone)" />
+                <select id="time" class="form-select" @bind="formData.Time">
+                    <option value=""></option>
+                    @foreach (var time in times)
+                    {
+                        <option value="@time.value">@time.display</option>
+                    }
+                </select>
+                <ValidationMessage For="@(() => formData.Time)" />
             </div>
         </div>
         <div class="row mb-3">
@@ -52,9 +58,15 @@
 @code {
     private FormData formData = new FormData();
     private List<Service> allServices = new();
+    private List<(DateTime value, string display)> times = new();
 
     protected override async Task OnInitializedAsync()
     {
+        times.AddRange(
+        [
+            (DateTime.Now, "4 pm"),
+            (DateTime.Now.AddMinutes(3), "5 pm"),
+    ]);
         await LoadServicesAsync();
         await base.OnInitializedAsync();
     }
@@ -69,6 +81,16 @@
         {
             logger.LogError(ex, $"failed to load {nameof(Service)} from api");
         }
+    }
+
+    private async Task DateChanged()
+    {
+        formData.Time = null;
+        times.Clear();
+        times.AddRange(
+        [
+            (DateTime.Now, "6 pm"),
+    ]);
     }
 
     private void ToggleServiceSelection(Service service)
@@ -96,6 +118,12 @@
         [Required]
         [Phone]
         public string Phone { get; set; }
+
+        [Required]
+        public DateTime Date { get; set; } = DateTime.Now;
+
+        [Required]
+        public DateTime? Time { get; set; } = null;
 
         public List<Service> SelectedServices { get; set; } = new();
     }
