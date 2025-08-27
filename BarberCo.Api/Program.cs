@@ -17,6 +17,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddTransient<IBarberRepo, BarberRepo>();
 builder.Services.AddTransient<IHourRepo, HourRepo>();
 builder.Services.AddTransient<IServiceRepo, ServiceRepo>();
+builder.Services.AddTransient<IAppointmentRepo, AppointmentRepo>();
 builder.Services.AddApplicationInsightsTelemetry();
 builder.Services.AddScoped<JwtHelper>();
 

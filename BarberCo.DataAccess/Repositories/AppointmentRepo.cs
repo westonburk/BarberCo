@@ -19,9 +19,41 @@ namespace BarberCo.DataAccess.Repositories
             _context = context;
         }
 
-        public Task<Appointment> CreateAppointmentAsync(AppointmentUpdateDto newAppointment, CancellationToken token)
+        public async Task<Appointment> CreateAppointmentAsync(AppointmentUpdateDto newAppointment, CancellationToken token)
         {
-            throw new NotImplementedException();   
+            if (newAppointment.DateTime < DateTime.Now)
+                throw new Exception($"cannot create {nameof(Appointment)} invalid time");
+
+            var dayOfWeek = newAppointment.DateTime.DayOfWeek.ToString();
+            var hour = await _context.Hours.FirstAsync(x => x.DayOfWeek == dayOfWeek, token);
+            if (hour.IsClosed)
+                throw new Exception($"{dayOfWeek} is closed cannot create {nameof(Appointment)}");
+
+            var services = await _context.Services
+                .Where(x => newAppointment.ServiceIds.Contains(x.Id))
+                .ToListAsync(token);
+
+            if (services.Count == 0)
+                throw new Exception($"cannot create {nameof(Appointment)} without service(s)");
+
+            if (string.IsNullOrWhiteSpace(newAppointment.CustomerName))
+                throw new Exception($"{nameof(Appointment.CustomerName)} cannot be empty");
+                
+            if (string.IsNullOrWhiteSpace(newAppointment.CustomerPhone))
+                throw new Exception($"{nameof(Appointment.CustomerPhone)} cannot be empty");
+
+            var compareDate = new DateTime(2000, 12, 1, newAppointment.DateTime.Hour, newAppointment.DateTime.Minute, 0);
+            if ((compareDate <= hour.StartTime && compareDate <= hour.EndTime) == false)
+                throw new Exception($"cannot create {nameof(Appointment)} outside business hours");
+
+            var appointment = new Appointment();
+            appointment.CustomerName = newAppointment.CustomerName;
+            appointment.CustomerPhone = newAppointment.CustomerPhone;
+            appointment.DateTime = newAppointment.DateTime;
+            appointment.Services.AddRange(services);
+            _context.Appointments.Add(appointment);
+            await _context.SaveChangesAsync(token);
+            return appointment;
         }
 
         public Task<List<Appointment>> GetAllAppointmentsAsync(CancellationToken token)

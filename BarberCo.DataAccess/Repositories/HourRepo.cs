@@ -50,7 +50,7 @@ namespace BarberCo.DataAccess.Repositories
             }
 
             await _context.SaveChangesAsync(token);
-            return await GetHourByIdAsync(hour.Id, token);
+            return hour;
         }
     }
 }
