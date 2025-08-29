@@ -1,5 +1,5 @@
 ﻿using BarberCo.Api.Auth;
-using BarberCo.Api.Dtos;
+using BarberCo.SharedLibrary.Dtos;
 using BarberCo.SharedLibrary.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -24,7 +24,7 @@ namespace BarberCo.Api.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginModel model)
+        public async Task<IActionResult> Login([FromBody] LoginDto model)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);

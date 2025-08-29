@@ -1,5 +1,4 @@
-﻿using BarberCo.Api.Dtos;
-using BarberCo.DataAccess.Repositories;
+﻿using BarberCo.DataAccess.Repositories;
 using BarberCo.SharedLibrary.Dtos;
 using BarberCo.SharedLibrary.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
