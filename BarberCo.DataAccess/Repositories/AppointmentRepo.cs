@@ -59,7 +59,10 @@ namespace BarberCo.DataAccess.Repositories
 
         public Task<List<Appointment>> GetAllAppointmentsAsync(CancellationToken token)
         {
-            return _context.Appointments.ToListAsync(token);
+            return _context.Appointments
+                .Include(x => x.Services)
+                .ToListAsync(token);
+
         }
     }
 }

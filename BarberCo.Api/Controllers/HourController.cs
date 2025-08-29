@@ -37,7 +37,7 @@ namespace BarberCo.Api.Controllers
 
         [HttpPut("{id}")]
         [Authorize(AuthenticationSchemes = "Bearer")]
-        public async Task<ActionResult<Hour>> PutHour(int id, HourUpdateDto hour, CancellationToken token)
+        public async Task<ActionResult<Hour>> PutHour(int id, [FromBody] HourUpdateDto hour, CancellationToken token)
         {
             try
             {

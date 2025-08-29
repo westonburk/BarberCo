@@ -37,7 +37,7 @@ namespace BarberCo.Api.Controllers
 
         [HttpPut("{id}")]
         [Authorize(AuthenticationSchemes = "Bearer")]
-        public async Task<ActionResult<Service>> PutService(int id, ServiceUpdateDto service, CancellationToken token)
+        public async Task<ActionResult<Service>> PutService(int id, [FromBody] ServiceUpdateDto service, CancellationToken token)
         {
             try
             {
@@ -59,7 +59,7 @@ namespace BarberCo.Api.Controllers
 
         [HttpPost]
         [Authorize(AuthenticationSchemes = "Bearer")]
-        public async Task<ActionResult<Service>> PostService(ServiceUpdateDto newService, CancellationToken token)
+        public async Task<ActionResult<Service>> PostService([FromBody] ServiceUpdateDto newService, CancellationToken token)
         {
             try
             {

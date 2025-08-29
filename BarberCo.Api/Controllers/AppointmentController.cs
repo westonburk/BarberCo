@@ -9,12 +9,12 @@ namespace BarberCo.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class Appointment : Controller
+    public class AppointmentController : Controller
     {
         private readonly IAppointmentRepo _apptRepo;
         private readonly ILogger<Appointment> _logger;
 
-        public Appointment(IAppointmentRepo apptRepo, ILogger<Appointment> logger)
+        public AppointmentController(IAppointmentRepo apptRepo, ILogger<Appointment> logger)
         {
             _apptRepo = apptRepo;
             _logger = logger;
@@ -38,7 +38,7 @@ namespace BarberCo.Api.Controllers
 
         [HttpPost]
         [Authorize(AuthenticationSchemes = "ApiKey")]
-        public async Task<ActionResult<Appointment>> PostAppointment(AppointmentUpdateDto newAppt, CancellationToken token)
+        public async Task<ActionResult<Appointment>> PostAppointment([FromBody] AppointmentUpdateDto newAppt, CancellationToken token)
         {
             try
             {

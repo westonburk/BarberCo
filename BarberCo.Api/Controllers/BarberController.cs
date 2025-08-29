@@ -83,7 +83,7 @@ namespace BarberCo.Api.Controllers
 
         [HttpPut("{id}")]
         [Authorize(AuthenticationSchemes = "Bearer")]
-        public async Task<ActionResult<BarberDto>> PutBarber(string id, BarberDto dto)
+        public async Task<ActionResult<BarberDto>> PutBarber(string id, [FromBody] BarberDto dto)
         {
             try
             {
@@ -110,7 +110,7 @@ namespace BarberCo.Api.Controllers
 
         [HttpPut("{id}/password")]
         [Authorize(AuthenticationSchemes = "Bearer")]
-        public async Task<ActionResult<BarberResultDto>> ChangeBarberPassword(string id, BarberChangePasswordDto dto)
+        public async Task<ActionResult<BarberResultDto>> ChangeBarberPassword(string id, [FromBody] BarberChangePasswordDto dto)
         {
             try
             {
