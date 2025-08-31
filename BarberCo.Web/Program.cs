@@ -17,6 +17,7 @@ builder.Services.AddHttpClient("BarberCoAPI", client =>
 builder.Services.AddScoped<IBarberCoApiService, BarberCoApiService>();
 builder.Services.AddScoped<IHourService, HourService>();
 builder.Services.AddScoped<IServiceService, ServiceService>();
+builder.Services.AddScoped<IAppointmentService, AppointmentService>();
 
 var app = builder.Build();
 

@@ -8,6 +8,6 @@ namespace BarberCo.SharedLibrary.Services
 {
     public interface IAppointmentService
     {
-
+        public Task<List<(DateTime value, string display)>> GetValidTimesForDayAsync(DateTime date);
     }
 }

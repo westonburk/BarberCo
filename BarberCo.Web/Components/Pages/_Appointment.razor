@@ -2,6 +2,7 @@
 @using System.ComponentModel.DataAnnotations
 @inject IServiceService ServiceService
 @inject ILogger<Appointment> logger
+@inject IAppointmentService AppointmentService
 
 <div class="appointment-container">
     <h1>Appointment</h1>
@@ -22,12 +23,12 @@
         <div class="row mb-3">
             <div class="col-md-6">
                 <label for="date">Date:</label>
-                <InputDate id="date" class="form-control" @bind-Value:after="AfterDateChanged" @bind-Value="formData.Date" />
+                <InputDate id="date" class="form-control" @bind-Value:after="AfterDateChangedAsync" @bind-Value="formData.Date" />
                 <ValidationMessage For="@(() => formData.Date)" />
             </div>
             <div class="col-md-6">
                 <label for="time">Time:</label>
-                <select id="time" class="form-select" @bind="formData.Time">
+                <select id="time" class="form-select" @bind="formData.Time" disabled="@(!canEditTime)">
                     <option value=""></option>
                     @foreach (var time in times)
                     {
@@ -56,19 +57,23 @@
 
 
 @code {
+    private bool canEditTime = true;
     private FormData formData = new FormData();
     private List<Service> allServices = new();
     private List<(DateTime value, string display)> times = new();
 
     protected override async Task OnInitializedAsync()
     {
-        times.AddRange(
-        [
-            (DateTime.Now, "4 pm"),
-            (DateTime.Now.AddMinutes(3), "5 pm"),
-    ]);
-        await LoadServicesAsync();
-        await base.OnInitializedAsync();
+        try
+        {
+            await PopulateTimesAsync();
+            await LoadServicesAsync();
+            await base.OnInitializedAsync();
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"error loading page");
+        }
     }
 
     private async Task LoadServicesAsync()
@@ -83,14 +88,34 @@
         }
     }
 
-    private async Task AfterDateChanged()
+    private async Task AfterDateChangedAsync()
+    {
+        try
+        {
+            await PopulateTimesAsync();
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"");
+        }
+    }
+
+    private async Task PopulateTimesAsync()
     {
         formData.Time = null;
         times.Clear();
-        times.AddRange(
-        [
-            (DateTime.Now, "6 pm"),
-    ]);
+        var validTimes = await AppointmentService.GetValidTimesForDayAsync(formData.Date);
+        if (validTimes.Count == 0)
+        {
+            times.Add((default, "No Availiablility"));
+            formData.Time = times[0].value;
+            canEditTime = false;
+        }
+        else
+        {
+            canEditTime = true;
+            times.AddRange(validTimes);
+        }
     }
 
     private void ToggleServiceSelection(Service service)
