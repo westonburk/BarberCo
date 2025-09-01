@@ -1,12 +1,13 @@
 ﻿@page "/appointment"
 @using System.ComponentModel.DataAnnotations
+@using BarberCo.SharedLibrary.Dtos
 @inject IServiceService ServiceService
 @inject ILogger<Appointment> logger
 @inject IAppointmentService AppointmentService
 
 <div class="appointment-container">
     <h1>Appointment</h1>
-    <EditForm Model="@formData" OnInvalidSubmit="@HandleValidSubmit">
+    <EditForm Model="@formData" OnValidSubmit="@HandleValidSubmit">
         <DataAnnotationsValidator />
         <div class="row mb-3">
             <div class="col-md-6">
@@ -72,7 +73,7 @@
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, $"error loading page");
+            logger.LogError(ex, $"error loading {nameof(_Appointment)} page");
         }
     }
 
@@ -130,9 +131,14 @@
         }
     }
 
-    private void HandleValidSubmit()
+    private async Task HandleValidSubmit()
     {
-        var s = formData.SelectedServices;
+        var apt = new AppointmentUpdateDto();
+        apt.CustomerName = formData.Name;
+        apt.CustomerPhone = formData.Phone;
+        apt.DateTime = new DateTime(formData.Date.Year, formData.Date.Month, formData.Date.Day, formData.Time.Value.Hour, 0, 0);
+        apt.ServiceIds = formData.SelectedServices.Select(x => x.Id).ToList();
+        var newApt = await AppointmentService.SubmitAppointmentAsync(apt);
     }
 
     public class FormData

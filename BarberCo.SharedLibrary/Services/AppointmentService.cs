@@ -1,4 +1,5 @@
-﻿using BarberCo.SharedLibrary.Models;
+﻿using BarberCo.SharedLibrary.Dtos;
+using BarberCo.SharedLibrary.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +12,7 @@ namespace BarberCo.SharedLibrary.Services
     {
         private readonly IBarberCoApiService _apiService;
         private readonly IHourService _hourService;
-        private List<Hour> hours;
+        private List<Hour>? hours = null;
 
         public AppointmentService(IBarberCoApiService apiService, IHourService hourService)
         {
@@ -33,7 +34,7 @@ namespace BarberCo.SharedLibrary.Services
             var results = new List<(DateTime value, string display)>();
             var now = DateTime.Now;
 
-            if (date == default || date < now)
+            if (date == default || date.Date < now.Date)
                 return results;
 
             var hours = await GetHoursAsync();
@@ -41,16 +42,18 @@ namespace BarberCo.SharedLibrary.Services
             if (hour.IsClosed)
                 return results;
 
-            if (now.Date == date.Date)
+            var shiftStart = new DateTime(date.Year, date.Month, date.Day, hour.StartTime.Hour, 0, 0);
+            var shiftEnd = new DateTime(date.Year, date.Month, date.Day, hour.EndTime.Hour, 0, 0);
+
+            var needsPartialHours = date > shiftStart;
+            if (needsPartialHours)
             {
-                var end = new DateTime(date.Year, date.Month, date.Day, hour.EndTime.Hour, 0, 0);
-                results.AddRange(GetHoursBetweenDates(date.AddHours(1), end));
+                shiftStart = new DateTime(date.Year, date.Month, date.Day, date.Hour + 1, 0, 0);
+                results.AddRange(GetHoursBetweenDates(shiftStart, shiftEnd));
             }
             else
             {
-                var start = new DateTime(date.Year, date.Month, date.Day, hour.StartTime.Hour, 0, 0);
-                var end = new DateTime(date.Year, date.Month, date.Day, hour.EndTime.Hour, 0, 0);
-                results.AddRange(GetHoursBetweenDates(start, end));
+                results.AddRange(GetHoursBetweenDates(shiftStart, shiftEnd));
             }
            
            return results;
@@ -59,12 +62,17 @@ namespace BarberCo.SharedLibrary.Services
         private List<(DateTime value, string display)> GetHoursBetweenDates(DateTime start, DateTime end)
         {
             var results = new List<(DateTime value, string display)>();
-            while (start < end)
+            while (start <= end)
             {
                 results.Add((start, start.ToString("h tt")));
-                start.AddHours(1);
+                start = start.AddHours(1);
             }
             return results;
+        }
+
+        public Task<Appointment> SubmitAppointmentAsync(AppointmentUpdateDto newAppointment)
+        {
+            return _apiService.PostAsync<AppointmentUpdateDto, Appointment>("appointment", newAppointment);
         }
     }
 }
