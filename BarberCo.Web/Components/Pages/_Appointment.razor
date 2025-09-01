@@ -7,6 +7,12 @@
 
 <div class="appointment-container">
     <h1>Appointment</h1>
+    @if (errorMessage != null)
+    {
+        <div class="alert alert-danger" role="alert">
+            <strong>Error:</strong> @errorMessage
+        </div>
+    }
     <EditForm Model="@formData" OnValidSubmit="@HandleValidSubmit">
         <DataAnnotationsValidator />
         <div class="row mb-3">
@@ -59,6 +65,8 @@
 
 @code {
     private bool canEditTime = true;
+    private bool isSubmitting = false;
+    private string? errorMessage = null;
     private FormData formData = new FormData();
     private List<Service> allServices = new();
     private List<(DateTime value, string display)> times = new();
@@ -133,12 +141,36 @@
 
     private async Task HandleValidSubmit()
     {
-        var apt = new AppointmentUpdateDto();
-        apt.CustomerName = formData.Name;
-        apt.CustomerPhone = formData.Phone;
-        apt.DateTime = new DateTime(formData.Date.Year, formData.Date.Month, formData.Date.Day, formData.Time.Value.Hour, 0, 0);
-        apt.ServiceIds = formData.SelectedServices.Select(x => x.Id).ToList();
-        var newApt = await AppointmentService.SubmitAppointmentAsync(apt);
+        if (isSubmitting == true)
+            return;
+
+        try
+        {
+            isSubmitting = true;
+            errorMessage = null;
+            var apt = new AppointmentUpdateDto();
+            apt.CustomerName = formData.Name;
+            apt.CustomerPhone = formData.Phone;
+            apt.DateTime = new DateTime(formData.Date.Year, formData.Date.Month, formData.Date.Day, formData.Time.Value.Hour, 0, 0);
+            apt.ServiceIds = formData.SelectedServices.Select(x => x.Id).ToList();
+            var newApt = await AppointmentService.SubmitAppointmentAsync(apt);
+        }
+        catch (HttpRequestException ex)
+        {
+            errorMessage = ex.Message;
+            if (ex.StatusCode != System.Net.HttpStatusCode.UnprocessableEntity)
+            {
+                logger.LogError(ex, "HTTP error submitting appointment");
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"error submitting appointment");
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
     }
 
     public class FormData

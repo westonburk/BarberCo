@@ -21,28 +21,48 @@ namespace BarberCo.SharedLibrary.Services
         public async Task<bool> DeleteAsync(string endpoint, CancellationToken cancellationToken = default)
         {
             var response = await _httpClient.DeleteAsync(endpoint, cancellationToken);
-            response.EnsureSuccessStatusCode();
-            return response.StatusCode == System.Net.HttpStatusCode.OK;
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                throw new HttpRequestException(errorContent, null, response.StatusCode);
+            }
+
+            return true;
         }
 
         public async Task<TResponse> PostAsync<TRequest, TResponse>(string endpoint, TRequest data, CancellationToken cancellationToken = default)
         {
             var response = await _httpClient.PostAsJsonAsync(endpoint, data, cancellationToken);
-            response.EnsureSuccessStatusCode();
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                throw new HttpRequestException(errorContent, null, response.StatusCode);
+            }
+
             return await response.Content.ReadFromJsonAsync<TResponse>(cancellationToken: cancellationToken);
         }
 
         public async Task<T> GetAsync<T>(string endpoint, CancellationToken cancellationToken = default)
         {
             var response = await _httpClient.GetAsync(endpoint, cancellationToken);
-            response.EnsureSuccessStatusCode();
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                throw new HttpRequestException(errorContent, null, response.StatusCode);
+            }
+
             return await response.Content.ReadFromJsonAsync<T>(cancellationToken: cancellationToken);
         }
 
         public async Task<TResponse> PutAsync<TRequest, TResponse>(string endpoint, TRequest data, CancellationToken cancellationToken = default)
         {
             var response = await _httpClient.PutAsJsonAsync(endpoint, data, cancellationToken);
-            response.EnsureSuccessStatusCode();
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                throw new HttpRequestException(errorContent, null, response.StatusCode);
+            }
+
             return await response.Content.ReadFromJsonAsync<TResponse>(cancellationToken: cancellationToken);
         }
     }
