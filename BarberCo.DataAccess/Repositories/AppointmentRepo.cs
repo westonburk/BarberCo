@@ -44,7 +44,7 @@ namespace BarberCo.DataAccess.Repositories
                 throw new DataValidationException($"{nameof(Appointment.CustomerPhone)} cannot be empty");
 
             var compareDate = new DateTime(2000, 12, 1, newAppointment.DateTime.Hour, newAppointment.DateTime.Minute, 0);
-            if ((compareDate <= hour.StartTime && compareDate <= hour.EndTime) == false)
+            if ((compareDate >= hour.StartTime && compareDate <= hour.EndTime) == false)
                 throw new DataValidationException($"cannot create {nameof(Appointment)} outside business hours");
 
             var appointment = new Appointment();

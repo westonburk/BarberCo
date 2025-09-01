@@ -4,6 +4,7 @@
 @inject IServiceService ServiceService
 @inject ILogger<Appointment> logger
 @inject IAppointmentService AppointmentService
+@inject NavigationManager Navigation
 
 <div class="appointment-container">
     <h1>Appointment</h1>
@@ -154,6 +155,8 @@
             apt.DateTime = new DateTime(formData.Date.Year, formData.Date.Month, formData.Date.Day, formData.Time.Value.Hour, 0, 0);
             apt.ServiceIds = formData.SelectedServices.Select(x => x.Id).ToList();
             var newApt = await AppointmentService.SubmitAppointmentAsync(apt);
+
+            Navigation.NavigateTo($"/appointment-success/{newApt.DateTime:s}");
         }
         catch (HttpRequestException ex)
         {

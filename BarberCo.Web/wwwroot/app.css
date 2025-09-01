@@ -303,3 +303,22 @@ main {
     border-color: transparent;
     background-color: var(--primary-color);
 }
+
+
+/*SuccessPage*/
+.appointment-success-container {
+    margin: 5rem 0px 0px 0px;
+    color: var(--text-color);
+    text-align: center;
+}
+.appointment-success-container .success-icon {
+    color: #36ff80;
+}
+.appointment-success-container h1{
+    margin: 3rem 0px 1rem 0px;
+}
+.appointment-success-container .appointment-time {
+    font-size: 1.5rem;
+    font-weight: 500;
+    line-height: 1.5;
+}
