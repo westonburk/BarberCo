@@ -24,7 +24,11 @@
             </div>
             <div class="col-md-6">
                 <label for="phone">Phone:</label>
-                <InputText id="phone" class="form-control" @bind-Value="formData.Phone" />
+                <InputText id="phone" class="form-control" 
+                           @bind-Value="formData.Phone" 
+                           @oninput="@((e) => FormatPhoneNumber(e.Value?.ToString()))"
+                           placeholder="(123) 456-7890"
+                           maxLength="14"/>
                 <ValidationMessage For="@(() => formData.Phone)" />
             </div>
         </div>
@@ -176,13 +180,52 @@
         }
     }
 
+
+    /// <summary>
+    /// needed to implement my own mask since I decided not to use 3rd party controls on this project
+    /// </summary>
+    /// <param name="input"></param>
+    private void FormatPhoneNumber(string input)
+    {
+        if (string.IsNullOrEmpty(input))
+        {
+            formData.Phone = "";
+            return;
+        }
+        
+        // Remove all non-numeric characters
+        var digits = new string(input.Where(char.IsDigit).ToArray());
+        
+        // Limit to 10 digits
+        if (digits.Length > 10)
+            digits = digits.Substring(0, 10);
+       
+        // Format the phone number
+        if (digits.Length >= 6)
+        {
+            formData.Phone = $"({digits.Substring(0, 3)}) {digits.Substring(3, 3)}-{digits.Substring(6)}";
+        }
+        else if (digits.Length >= 3)
+        {
+            formData.Phone = $"({digits.Substring(0, 3)}) {digits.Substring(3)}";
+        }
+        else if (digits.Length > 0)
+        {
+            formData.Phone = $"({digits}";
+        }
+        else
+        {
+            formData.Phone = "";
+        }
+    }
+    
     public class FormData
     {
         [Required]
         public string Name { get; set; }
 
         [Required]
-        [Phone]
+        [RegularExpression(@"^\(\d{3}\) \d{3}-\d{4}$", ErrorMessage = "Phone must be in format (123) 456-7890")]
         public string Phone { get; set; }
 
         [Required]
