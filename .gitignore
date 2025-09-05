@@ -363,3 +363,5 @@ MigrationBackup/
 FodyWeavers.xsd
 /BarberCo.Api/appsettings.json
 /BarberCo.Api/appsettings.Development.json
+/BarberCo.Web/appsettings.Development.json
+/BarberCo.Web/appsettings.json
