@@ -2,6 +2,8 @@ using BarberCo.Api.Auth;
 using BarberCo.DataAccess;
 using BarberCo.DataAccess.Repositories;
 using BarberCo.SharedLibrary.Models;
+using Microsoft.ApplicationInsights.AspNetCore.Extensions;
+using Microsoft.ApplicationInsights.AspNetCore.Logging;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -18,8 +20,12 @@ builder.Services.AddTransient<IBarberRepo, BarberRepo>();
 builder.Services.AddTransient<IHourRepo, HourRepo>();
 builder.Services.AddTransient<IServiceRepo, ServiceRepo>();
 builder.Services.AddTransient<IAppointmentRepo, AppointmentRepo>();
-builder.Services.AddApplicationInsightsTelemetry();
 builder.Services.AddScoped<JwtHelper>();
+builder.Logging
+    .AddApplicationInsights(
+    x => x.ConnectionString= builder.Configuration.GetSection("ApplicationInsights:ConnectionString").Get<string>(),
+    y => y.IncludeScopes = true);
+
 
 var jwtKey = builder.Configuration.GetSection("Jwt:Key").Get<string>();
 var issuer = builder.Configuration.GetSection("Jwt:Issuer").Get<string>();
