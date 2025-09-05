@@ -21,11 +21,13 @@ builder.Services.AddTransient<IHourRepo, HourRepo>();
 builder.Services.AddTransient<IServiceRepo, ServiceRepo>();
 builder.Services.AddTransient<IAppointmentRepo, AppointmentRepo>();
 builder.Services.AddScoped<JwtHelper>();
+
+#if DEBUG == false
 builder.Logging
     .AddApplicationInsights(
     x => x.ConnectionString= builder.Configuration.GetSection("ApplicationInsights:ConnectionString").Get<string>(),
     y => y.IncludeScopes = true);
-
+#endif
 
 var jwtKey = builder.Configuration.GetSection("Jwt:Key").Get<string>();
 var issuer = builder.Configuration.GetSection("Jwt:Issuer").Get<string>();
