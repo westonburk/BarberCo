@@ -7,7 +7,9 @@
     <div class="grid"> 
         @if (isLoading)
         {
-            <p>Loading services...</p>
+            // had to excplicitly set color here instead of in app.css
+            // I am not sure why it wasn't being applied correctly in app.css'
+            <p style="color: #ffffff">Loading services...</p>
         }
         else if (errorMessage != null)
         {
@@ -32,10 +34,13 @@
     private bool isLoading = true;
     private string? errorMessage = null;
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        await LoadServices();
-        await base.OnInitializedAsync();
+        if (firstRender)
+        {
+            await LoadServices();
+            StateHasChanged(); 
+        }
     }
 
     private async Task LoadServices()
