@@ -24,7 +24,7 @@ namespace BarberCo.Api.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginDto model)
+        public async Task<ActionResult<TokenDto>> Login([FromBody] LoginDto model)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -38,7 +38,7 @@ namespace BarberCo.Api.Controllers
                 return Unauthorized(new { message = "Invalid credentials" });
 
             var token = await _jwtHelper.GenerateJWTTokenAsync(user);
-            return Ok(new { token });
+            return Ok(token);
         }
     }
 }

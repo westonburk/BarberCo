@@ -1,4 +1,5 @@
-﻿using BarberCo.SharedLibrary.Models;
+﻿using BarberCo.SharedLibrary.Dtos;
+using BarberCo.SharedLibrary.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -18,7 +19,7 @@ namespace BarberCo.Api.Auth
             _userManager = userManager;
         }
 
-        public async Task<string> GenerateJWTTokenAsync(Barber barber)
+        public async Task<TokenDto> GenerateJWTTokenAsync(Barber barber)
         {
             var jwtKey = _config.GetSection("Jwt:Key").Get<string>();
             var issuer = _config.GetSection("Jwt:Issuer").Get<string>();
@@ -48,8 +49,16 @@ namespace BarberCo.Api.Auth
             );
 
             var token = new JwtSecurityTokenHandler().WriteToken(jwtToken);
+            var result = new TokenDto()
+            {
+                Token = token,
+                Barber = BarberDto.Get(barber),
+                Roles = roles.ToList(),
+                Issued = jwtToken.IssuedAt,
+                Expires = jwtToken.ValidTo
+            };
 
-            return token;
+            return result;
         }
     }
 }
