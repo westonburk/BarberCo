@@ -1,0 +1,70 @@
+﻿@page "/login"
+@inject IAuthService AuthService
+@inject NavigationManager Navigation
+
+<MudContainer MaxWidth="MaxWidth.Small" Class="mt-8">
+    <MudPaper Elevation="3" Class="pa-8">
+        <MudText Typo="Typo.h4" Class="mb-6" Align="Align.Center">Login</MudText>
+        
+        <MudForm @ref="form" @bind-IsValid="@valid" @bind-Errors="@errors">
+            <MudTextField @bind-Value="username" 
+                          Label="Username" 
+                          Required="true" 
+                          RequiredError="Username is required" 
+                          Class="mb-4" />
+                          
+            <MudTextField @bind-Value="password" 
+                          Label="Password" 
+                          InputType="InputType.Password" 
+                          Required="true" 
+                          RequiredError="Password is required" 
+                          Class="mb-6" />
+            
+            @if (!string.IsNullOrEmpty(error))
+            {
+                <MudAlert Severity="Severity.Error" Class="mb-4">@error</MudAlert>
+            }
+            
+            <MudButton Variant="Variant.Filled" 
+                       Color="Color.Primary" 
+                       FullWidth="true" 
+                       OnClick="HandleLogin" 
+                       Disabled="!valid || loading">
+                @if (loading)
+                {
+                    <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
+                }
+                Login
+            </MudButton>
+        </MudForm>
+    </MudPaper>
+</MudContainer>
+
+@code {
+    private string username = "";
+    private string password = "";
+    private string error = "";
+    private bool valid;
+    private bool loading;
+    private string[] errors = { };
+    private MudForm form;
+
+    private async Task HandleLogin()
+    {
+        loading = true;
+        error = "";
+        try
+        {
+            await AuthService.LoginAsync(username, password);
+            Navigation.NavigateTo("/", true); // Force reload to refresh auth state
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        {
+            error = "Invalid username or password";
+        }
+        finally
+        {
+            loading = false;
+        }
+    }
+}
