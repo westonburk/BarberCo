@@ -22,7 +22,7 @@ namespace BarberCo.Management.Auth
 
         public async Task LoginAsync(string username, string password)
         {
-            var tokenDto = await _apiService.PostAsync<LoginDto, TokenDto>("api/auth/login",
+            var tokenDto = await _apiService.PostAsync<LoginDto, TokenDto>("auth/login",
                     new LoginDto { Username = username, Password = password });
 
             await _localStorage.SetItemAsync(StorageKeys.AuthToken, tokenDto);

@@ -27,7 +27,7 @@ builder.Services.AddHttpClient("BarberCoAPI", client =>
 #if DEBUG == false
     var baseUrl = builder.Configuration["ApiBaseUrl"];
 #endif
-    var baseUrl = "https://localhost:7200/";
+    var baseUrl = "https://localhost:7200/api/";
 
     client.BaseAddress = new Uri(baseUrl);
 })

@@ -18,6 +18,8 @@
                           InputType="InputType.Password" 
                           Required="true" 
                           RequiredError="Password is required" 
+                          @onkeydown="OnPasswordFieldKeyDown"
+                          Immediate="true"
                           Class="mb-6" />
             
             @if (!string.IsNullOrEmpty(error))
@@ -65,6 +67,14 @@
         finally
         {
             loading = false;
+        }
+    }
+
+    private async void OnPasswordFieldKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await HandleLogin();
         }
     }
 }

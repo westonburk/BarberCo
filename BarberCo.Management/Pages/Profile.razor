@@ -1,0 +1,287 @@
+﻿@page "/profile"
+@using BarberCo.SharedLibrary.Dtos
+@using BarberCo.SharedLibrary.Services
+@using System.ComponentModel.DataAnnotations
+@inject IBarberCoApiService ApiService
+@inject IAuthService AuthService
+@inject ISnackbar Snackbar
+
+<PageTitle>Profile</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Small" Class="mt-4">
+    <MudPaper Elevation="2" Class="pa-6">
+        <MudText Typo="Typo.h4" Class="mb-6">Profile</MudText>
+
+        @if (_loading)
+        {
+            <MudProgressCircular Color="Color.Primary" Indeterminate="true" Class="my-4" />
+        }
+        else if (_profile != null)
+        {
+            <MudForm @ref="_form" @bind-IsValid="@_formIsValid" @bind-Errors="@_errors">
+                <MudGrid>
+                    <MudItem xs="12">
+                        <MudTextField T="string"
+                                      Label="Username"
+                                      @bind-Value="_profile.UserName"
+                                      Required="true"
+                                      RequiredError="Username is required"
+                                      Variant="Variant.Outlined"
+                                      Immediate="true" />
+                    </MudItem>
+
+                    <MudItem xs="12">
+                        <MudTextField T="string"
+                                      Label="Email"
+                                      @bind-Value="_profile.Email"
+                                      Required="true"
+                                      RequiredError="Email is required"
+                                      Validation="@(new EmailAddressAttribute() { ErrorMessage = "Invalid email address" })"
+                                      InputType="InputType.Email"
+                                      Variant="Variant.Outlined"
+                                      Immediate="true" />
+                    </MudItem>
+
+                    <MudItem xs="12">
+                        <MudTextField T="string"
+                                      Label="Phone Number"
+                                      @bind-Value="_profile.PhoneNumber"
+                                      Required="true"
+                                      RequiredError="Phone number is required"
+                                      Validation="@(new Func<string, IEnumerable<string>>(ValidatePhone))"
+                                      InputType="InputType.Telephone"
+                                      Variant="Variant.Outlined"
+                                      Immediate="true"
+                                      Mask="@(new PatternMask("(000) 000-0000"))" />
+                    </MudItem>
+
+                    <MudItem xs="12">
+                        <MudSwitch @bind-Value="_profile.IsAvaliable"
+                                   Label="Available for appointments"
+                                   Color="Color.Primary"
+                                   Class="mt-2" />
+                        <MudText Typo="Typo.body2" Class="mt-1 ml-10" Color="Color.Secondary">
+                            @(_profile.IsAvaliable ? "Clients can book appointments with you" : "You are not available for appointments")
+                        </MudText>
+                    </MudItem>
+
+                    <MudItem xs="12" Class="mt-4">
+                        <MudButton Variant="Variant.Filled"
+                                   Color="Color.Primary"
+                                   OnClick="SaveProfile"
+                                   Disabled="@(!_formIsValid || _saving)"
+                                   FullWidth="true"
+                                   StartIcon="@Icons.Material.Filled.Save"
+                                   Class="py-3">
+                            @if (_saving)
+                            {
+                                <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                                <MudText Class="ms-2">Saving...</MudText>
+                            }
+                            else
+                            {
+                                <span>Save Changes</span>
+                            }
+                        </MudButton>
+                    </MudItem>
+                </MudGrid>
+            </MudForm>
+        }
+        else
+        {
+            <MudAlert Severity="Severity.Error" Class="mt-4">
+                Failed to load profile information. Please try again.
+            </MudAlert>
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       OnClick="LoadProfile"
+                       Class="mt-4"
+                       StartIcon="@Icons.Material.Filled.Refresh">
+                Retry
+            </MudButton>
+        }
+    </MudPaper>
+
+    @* Optional: Add a card for changing password *@
+    <MudPaper Elevation="2" Class="pa-6 mt-4">
+        <MudText Typo="Typo.h6" Class="mb-4">Security</MudText>
+        <MudButton Variant="Variant.Outlined"
+                   Color="Color.Primary"
+                   StartIcon="@Icons.Material.Filled.Lock"
+                   OnClick="@(() =>_changePasswordDialog = true)">
+            Change Password
+        </MudButton>
+    </MudPaper>
+</MudContainer>
+
+@* Change Password Dialog *@
+<MudDialog @bind-Visible="_changePasswordDialog">
+    <DialogContent>
+        <MudText Typo="Typo.h6" Class="mb-4">Change Password</MudText>
+        <MudForm @ref="_passwordForm">
+            <MudTextField T="string"
+                          Label="Current Password"
+                          @bind-Value="_currentPassword"
+                          InputType="InputType.Password"
+                          Required="true"
+                          Variant="Variant.Outlined"
+                          Class="mb-4" />
+            <MudTextField T="string"
+                          Label="New Password"
+                          @bind-Value="_newPassword"
+                          InputType="InputType.Password"
+                          Required="true"
+                          Validation="@(new Func<string, IEnumerable<string>>(ValidatePassword))"
+                          Variant="Variant.Outlined"
+                          Class="mb-4" />
+            <MudTextField T="string"
+                          Label="Confirm New Password"
+                          @bind-Value="_confirmPassword"
+                          InputType="InputType.Password"
+                          Required="true"
+                          Validation="@(new Func<string, string>(ValidatePasswordMatch))"
+                          Variant="Variant.Outlined" />
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="@(() => _changePasswordDialog = false)">Cancel</MudButton>
+        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="ChangePassword">
+            Change Password
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    private MudForm _form;
+    private MudForm _passwordForm;
+    private bool _formIsValid;
+    private string[] _errors = { };
+    private bool _loading = true;
+    private bool _saving = false;
+    private BarberDto? _profile;
+    private string? _barberId;
+
+    // Password change fields
+    private bool _changePasswordDialog = false;
+    private string _currentPassword = "";
+    private string _newPassword = "";
+    private string _confirmPassword = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadProfile();
+    }
+
+    private async Task LoadProfile()
+    {
+        try
+        {
+            _loading = true;
+
+            // Get current user's ID from the auth token
+            var token = await AuthService.GetCurrentTokenAsync();
+            if (token == null)
+            {
+                Snackbar.Add("Authentication token not found", Severity.Error);
+                return;
+            }
+
+            _barberId = token.Barber.Id;
+
+            // Fetch the full profile from the API
+            _profile = await ApiService.GetAsync<BarberDto>($"barber/{_barberId}");
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error loading profile: {ex.Message}", Severity.Error);
+            _profile = null;
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private async Task SaveProfile()
+    {
+        if (!_formIsValid || _profile == null || string.IsNullOrEmpty(_barberId))
+            return;
+
+        try
+        {
+            _saving = true;
+
+            var updatedProfile = await ApiService.PutAsync<BarberDto, BarberDto>(
+                $"barber/{_barberId}",
+                _profile);
+
+            _profile = updatedProfile;
+            Snackbar.Add("Profile updated successfully", Severity.Success);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error saving profile: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
+
+    private async Task ChangePassword()
+    {
+        _passwordForm.Validate();
+        if (_passwordForm.IsValid)
+        {
+            try
+            {
+                var dto = new BarberChangePasswordDto
+                {
+                    CurrentPassword = _currentPassword,
+                    NewPassword = _newPassword,
+                    NewPasswordConfirm = _confirmPassword
+                };
+
+                await ApiService.PutAsync<BarberChangePasswordDto, BarberResultDto>(
+                    $"barber/{_barberId}/password",
+                    dto);
+
+                Snackbar.Add("Password changed successfully", Severity.Success);
+                _changePasswordDialog = false;
+
+                // Clear password fields
+                _currentPassword = "";
+                _newPassword = "";
+                _confirmPassword = "";
+            }
+            catch (Exception ex)
+            {
+                Snackbar.Add($"Error changing password: {ex.Message}", Severity.Error);
+            }
+        }
+    }
+
+    private IEnumerable<string> ValidatePhone(string phone)
+    {
+        if (string.IsNullOrWhiteSpace(phone))
+            yield return "Phone number is required";
+        else if (phone.Replace("(", "").Replace(")", "").Replace("-", "").Replace(" ", "").Length != 10)
+            yield return "Phone number must be 10 digits";
+    }
+
+    private IEnumerable<string> ValidatePassword(string password)
+    {
+        if (string.IsNullOrWhiteSpace(password))
+            yield return "Password is required";
+        else if (password.Length < 6)
+            yield return "Password must be at least 6 characters";
+        // Add more password rules as needed
+    }
+
+    private string ValidatePasswordMatch(string confirmPassword)
+    {
+        if (confirmPassword != _newPassword)
+            return "Passwords do not match";
+        return null;
+    }
+}

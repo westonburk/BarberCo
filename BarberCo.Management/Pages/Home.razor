@@ -33,28 +33,5 @@
                 </MudPaper>
             </MudItem>
         </MudGrid>
-
-        <MudText Typo="Typo.h5" Class="mt-6 mb-4">Welcome back, @context.User.Identity?.Name!</MudText>
-        
-        <MudPaper Class="pa-4" Elevation="2">
-            <MudText Typo="Typo.h6" Class="mb-2">Quick Actions</MudText>
-            <MudGrid>
-                <MudItem xs="12" sm="6" md="4">
-                    <MudButton Variant="Variant.Outlined" Color="Color.Primary" FullWidth="true" StartIcon="@Icons.Material.Filled.CalendarMonth" Href="/appointments">
-                        View Appointments
-                    </MudButton>
-                </MudItem>
-                <MudItem xs="12" sm="6" md="4">
-                    <MudButton Variant="Variant.Outlined" Color="Color.Secondary" FullWidth="true" StartIcon="@Icons.Material.Filled.Schedule" Href="/hours">
-                        Manage Hours
-                    </MudButton>
-                </MudItem>
-                <MudItem xs="12" sm="6" md="4">
-                    <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" FullWidth="true" StartIcon="@Icons.Material.Filled.ContentCut" Href="/services">
-                        Update Services
-                    </MudButton>
-                </MudItem>
-            </MudGrid>
-        </MudPaper>
     </Authorized>
 </AuthorizeView>
