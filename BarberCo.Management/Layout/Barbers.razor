@@ -309,7 +309,7 @@
             _loading = false;
         }
     }
-    
+
     private void OpenAddBarberDialog(MouseEventArgs args)
     {
         _isEditMode = false;
@@ -318,7 +318,7 @@
         _registrationModel = new BarberRegistrationDto { Role = "barber" };
         _dialogVisible = true;
     }
-    
+
     private void OpenEditBarberDialog(BarberDto barber)
     {
         _isEditMode = true;
@@ -334,29 +334,29 @@
         };
         _dialogVisible = true;
     }
-    
+
     private async Task SaveBarber()
     {
         if (!_formIsValid || _savingBarber) return;
-        
+
         try
         {
             _savingBarber = true;
-            
+
             if (_isEditMode)
             {
                 // Update existing barber
                 var result = await ApiService.PutAsync<BarberDto, BarberDto>(
                     $"barber/{_formModel.Id}", 
                     _formModel);
-                    
+
                 // Update the barber in the list
                 var index = _barbers!.FindIndex(b => b.Id == result.Id);
                 if (index >= 0)
                 {
                     _barbers[index] = result;
                 }
-                
+
                 Snackbar.Add("Barber updated successfully", Severity.Success);
             }
             else
@@ -365,15 +365,15 @@
                 _registrationModel.UserName = _formModel.UserName;
                 _registrationModel.Email = _formModel.Email;
                 _registrationModel.PhoneNumber = _formModel.PhoneNumber;
-                
+
                 var result = await ApiService.PostAsync<BarberRegistrationDto, BarberDto>(
                     "barber/register", 
                     _registrationModel);
-                    
+
                 _barbers!.Add(result);
                 Snackbar.Add("Barber created successfully", Severity.Success);
             }
-            
+
             _dialogVisible = false;
         }
         catch (Exception ex)
@@ -385,7 +385,7 @@
             _savingBarber = false;
         }
     }
-    
+
     private async Task DeleteBarber(BarberDto barber)
     {
         var result = await DialogService.ShowMessageBox(
@@ -393,16 +393,16 @@
             $"Are you sure you want to delete {barber.UserName}? This action cannot be undone.",
             yesText: "Delete",
             cancelText: "Cancel");
-            
+
         if (result == true)
         {
             try
             {
                 await ApiService.DeleteAsync($"barber/{barber.Id}");
-                
+
                 // Update the barber as deleted in the list
                 barber.IsDeleted = true;
-                
+
                 Snackbar.Add("Barber deleted successfully", Severity.Success);
                 StateHasChanged();
             }
@@ -412,13 +412,17 @@
             }
         }
     }
-    
+
     private IEnumerable<string> ValidatePassword(string password)
     {
         if (string.IsNullOrWhiteSpace(password))
             yield return "Password is required";
         else if (password.Length < 6)
             yield return "Password must be at least 6 characters";
+        else if (password.Any(char.IsUpper) == false)
+            yield return "Password must contain 1 or more capital letters";
+        else if (password.All(char.IsAsciiLetterOrDigit))
+            yield return "Password must contain 1 or more non alphanumeric characters";
     }
     
     private string ValidatePasswordMatch(string confirmPassword)

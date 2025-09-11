@@ -275,7 +275,10 @@
             yield return "Password is required";
         else if (password.Length < 6)
             yield return "Password must be at least 6 characters";
-        // Add more password rules as needed
+        else if (password.Any(char.IsUpper) == false)
+            yield return "Password must contain 1 or more capital letters";
+        else if (password.All(char.IsAsciiLetterOrDigit))
+            yield return "Password must contain 1 or more non alphanumeric characters";
     }
 
     private string ValidatePasswordMatch(string confirmPassword)
