@@ -40,6 +40,7 @@ namespace BarberCo.DataAccess.Repositories
             var result = new BarberResultDto();
 
             barber.DeletedOn = DateTime.Now;
+            barber.IsAvailable = false;
             var update = await _userManager.UpdateAsync(barber);
             if (update.Succeeded)
             {
@@ -102,7 +103,7 @@ namespace BarberCo.DataAccess.Repositories
             var createResult = await _userManager.CreateAsync(newBarber, dto.Password);
             if (createResult.Succeeded == false)
             {
-                result.Errors = "failed to create new barber with this information.";
+                result.Errors = string.Join($"{Environment.NewLine}", createResult.Errors.Select(x => x.Description));
                 return result;
             }
 

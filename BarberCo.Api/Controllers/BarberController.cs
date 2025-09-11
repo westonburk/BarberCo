@@ -45,11 +45,11 @@ namespace BarberCo.Api.Controllers
 
         [HttpGet("all")]
         [Authorize(AuthenticationSchemes = "Bearer,ApiKey")]
-        public async Task<ActionResult<List<BarberDto>>> GetBarbers(CancellationToken token)
+        public async Task<ActionResult<List<BarberDto>>> GetBarbers(CancellationToken token, bool includeDeleted = false)
         {
             try
             {
-                var dtos = await _barberRepo.GetAllBarbersAsync(token);
+                var dtos = await _barberRepo.GetAllBarbersAsync(token, includeDeleted);
                 return Ok(dtos);
             }
             catch (Exception ex)
@@ -81,7 +81,7 @@ namespace BarberCo.Api.Controllers
         }
 
         [HttpPut("{id}")]
-        [Authorize(AuthenticationSchemes = "Bearer")]
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = "admin")]
         public async Task<ActionResult<BarberDto>> PutBarber(string id, [FromBody] BarberDto dto)
         {
             try

@@ -204,7 +204,7 @@
 
     private async Task SaveProfile()
     {
-        if (!_formIsValid || _profile == null || string.IsNullOrEmpty(_barberId))
+        if (!_formIsValid || _profile == null || _saving || string.IsNullOrEmpty(_barberId))
             return;
 
         try

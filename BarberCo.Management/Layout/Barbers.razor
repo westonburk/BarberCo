@@ -1,5 +1,430 @@
-﻿<h3>Barbers</h3>
+﻿@page "/barbers"
+@using BarberCo.SharedLibrary.Dtos
+@using BarberCo.SharedLibrary.Services
+@using Microsoft.AspNetCore.Components.Authorization
+@using System.ComponentModel.DataAnnotations
+@inject IBarberCoApiService ApiService
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+@inject IAuthService AuthService
+
+<PageTitle>Barbers</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
+    <MudText Typo="Typo.h4" Class="mb-4">Barbers</MudText>
+    
+    <MudPaper Elevation="0" Class="d-flex justify-space-between align-left mb-4">
+        <AuthorizeView Roles="admin">
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       StartIcon="@Icons.Material.Filled.PersonAdd"
+                       OnClick="OpenAddBarberDialog">
+                Add Barber
+            </MudButton>
+        </AuthorizeView>
+
+        <MudSwitch @bind-Value="_showDeleted"
+                   Label="Show deleted"
+                   Color="Color.Secondary"
+                   Class="mr-2"/>
+    </MudPaper>
+    
+    @if (_loading)
+    {
+        <MudProgressCircular Color="Color.Primary" Indeterminate="true" Class="my-8" />
+    }
+    else if (_barbers == null || !_barbers.Any())
+    {
+        <MudPaper Elevation="1" Class="pa-8 text-center">
+            <MudIcon Icon="@Icons.Material.Filled.PersonOff" Size="Size.Large" Color="Color.Default" Class="mb-4" />
+            <MudText Typo="Typo.h6">No barbers found</MudText>
+            <MudText Typo="Typo.body2" Color="Color.Secondary">
+                @if (_showDeleted)
+                {
+                    <span>No deleted barbers to display</span>
+                }
+                else
+                {
+                    <span>No active barbers in the system</span>
+                }
+            </MudText>
+        </MudPaper>
+    }
+    else
+    {
+        <MudGrid>
+            @foreach (var barber in FilteredBarbers)
+            {
+                <MudItem xs="12" sm="6" md="4">
+                    <MudCard Class="barber-card" Elevation="2">
+                        <MudCardContent>
+                            <div class="d-flex justify-space-between align-start mb-2">
+                                <MudAvatar Color="Color.Primary" Size="Size.Large">
+                                    @barber.UserName.Substring(0, 1).ToUpper()
+                                </MudAvatar>
+                                <MudChip 
+                                    Color="@(barber.IsAvaliable ? Color.Success : Color.Default)" 
+                                    Size="Size.Small"
+                                    T="string">
+                                    @(barber.IsAvaliable ? "Available" : "Unavailable")
+                                </MudChip>
+                            </div>
+                            
+                            <MudText Typo="Typo.h6" Class="mb-1">@barber.UserName</MudText>
+                            
+                            <div class="mb-3">
+                                <div class="d-flex align-center gap-2 mb-1">
+                                    <MudIcon Icon="@Icons.Material.Filled.Email" Size="Size.Small" Color="Color.Secondary" />
+                                    <MudText Typo="Typo.body2">@barber.Email</MudText>
+                                </div>
+                                <div class="d-flex align-center gap-2">
+                                    <MudIcon Icon="@Icons.Material.Filled.Phone" Size="Size.Small" Color="Color.Secondary" />
+                                    <MudText Typo="Typo.body2">@barber.PhoneNumber</MudText>
+                                </div>
+                            </div>
+                            
+                            @if (barber.IsDeleted)
+                            {
+                                <MudAlert Severity="Severity.Warning" Dense="true" Class="mb-2">
+                                    This barber has been deleted
+                                </MudAlert>
+                            }
+                        </MudCardContent>
+                        
+                        <AuthorizeView Roles="admin">
+                            <MudCardActions Class="barber-actions">
+                                @if (barber.IsDeleted == false && _currentUser.Barber.Id != barber.Id)
+                                {
+                                    <MudButton 
+                                        Variant="Variant.Text" 
+                                        Color="Color.Primary" 
+                                        StartIcon="@Icons.Material.Filled.Edit"
+                                        OnClick="@(() => OpenEditBarberDialog(barber))">
+                                        Edit
+                                    </MudButton>
+                                    <MudButton 
+                                        Variant="Variant.Text" 
+                                        Color="Color.Error" 
+                                        StartIcon="@Icons.Material.Filled.Delete"
+                                        OnClick="@(() => DeleteBarber(barber))">
+                                        Delete
+                                    </MudButton>
+                                }
+                            </MudCardActions>
+                        </AuthorizeView>
+                    </MudCard>
+                </MudItem>
+            }
+        </MudGrid>
+    }
+</MudContainer>
+
+<MudDialog @bind-Visible="_dialogVisible" Options="@(new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true })">
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            @(_isEditMode ? $"Edit Barber - {_editingBarber?.UserName}" : "Add New Barber")
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudForm @ref="_form" @bind-IsValid="@_formIsValid">
+            <MudGrid>
+                <MudItem xs="12">
+                    <MudTextField 
+                        T="string" 
+                        Label="Username" 
+                        @bind-Value="_formModel.UserName" 
+                        Required="true" 
+                        RequiredError="Username is required"
+                        Variant="Variant.Outlined"
+                        Immediate="true" />
+                </MudItem>
+                
+                <MudItem xs="12">
+                    <MudTextField 
+                        T="string" 
+                        Label="Email" 
+                        @bind-Value="_formModel.Email" 
+                        Required="true" 
+                        RequiredError="Email is required"
+                        Validation="@(new EmailAddressAttribute() { ErrorMessage = "Invalid email address" })"
+                        InputType="InputType.Email"
+                        Variant="Variant.Outlined"
+                        Immediate="true" />
+                </MudItem>
+                
+                <MudItem xs="12">
+                    <MudTextField 
+                        T="string" 
+                        Label="Phone Number" 
+                        @bind-Value="_formModel.PhoneNumber" 
+                        Required="true" 
+                        RequiredError="Phone number is required"
+                        InputType="InputType.Telephone"
+                        Variant="Variant.Outlined"
+                        Immediate="true"
+                        Mask="@(new PatternMask("(000) 000-0000"))" />
+                </MudItem>
+                
+                @if (!_isEditMode)
+                {
+                    <MudItem xs="12">
+                        <MudSelect 
+                            T="string" 
+                            Label="Role" 
+                            @bind-Value="_registrationModel.Role"
+                            Required="true"
+                            RequiredError="Role is required"
+                            Variant="Variant.Outlined">
+                            <MudSelectItem Value="@("barber")">Barber</MudSelectItem>
+                            <MudSelectItem Value="@("admin")">Admin</MudSelectItem>
+                        </MudSelect>
+                    </MudItem>
+                    
+                    <MudItem xs="12">
+                        <MudTextField 
+                            T="string" 
+                            Label="Password" 
+                            @bind-Value="_registrationModel.Password" 
+                            InputType="InputType.Password"
+                            Required="true"
+                            RequiredError="Password is required"
+                            Validation="@(new Func<string, IEnumerable<string>>(ValidatePassword))"
+                            Variant="Variant.Outlined"
+                            Immediate="true" />
+                    </MudItem>
+                    
+                    <MudItem xs="12">
+                        <MudTextField 
+                            T="string" 
+                            Label="Confirm Password" 
+                            @bind-Value="_registrationModel.PasswordConfirm" 
+                            InputType="InputType.Password"
+                            Required="true"
+                            RequiredError="Please confirm password"
+                            Validation="@(new Func<string, string>(ValidatePasswordMatch))"
+                            Variant="Variant.Outlined"
+                            Immediate="true" />
+                    </MudItem>
+                }
+                else
+                {
+                    <MudItem xs="12">
+                        <MudSwitch 
+                            @bind-Value="_formModel.IsAvaliable" 
+                            Label="Available for appointments" 
+                            Color="Color.Primary" />
+                    </MudItem>
+                }
+            </MudGrid>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="@(() => _dialogVisible = false)">Cancel</MudButton>
+        <MudButton 
+            Color="Color.Primary" 
+            Variant="Variant.Filled" 
+            OnClick="SaveBarber"
+            Disabled="@(!_formIsValid || _savingBarber)">
+            @if (_savingBarber)
+            {
+                <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
+            }
+            @(_isEditMode ? "Update" : "Add") Barber
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+<style>
+    .barber-card {
+        position: relative;
+        transition: all 0.3s ease;
+    }
+    
+    .barber-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+    
+    .barber-actions {
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    
+    .barber-card:hover .barber-actions {
+        opacity: 1;
+    }
+</style>
 
 @code {
+    private MudForm _form;
+    private bool _formIsValid;
+    private bool _loading = true;
+    private bool _savingBarber = false;
+    private List<BarberDto>? _barbers;
+    private bool _showDeleted = false;
+    private bool _isAdmin = false;
+    private TokenDto _currentUser;
 
+    // Dialog state
+    private bool _dialogVisible = false;
+    private bool _isEditMode = false;
+    private BarberDto? _editingBarber;
+    private BarberDto _formModel = new();
+    private BarberRegistrationDto _registrationModel = new();
+
+    private IEnumerable<BarberDto> FilteredBarbers
+    {
+        get
+        {
+            var filtered = _barbers ?? new List<BarberDto>();
+
+            // Filter by deleted status
+            filtered = filtered.Where(b => b.IsDeleted == _showDeleted).ToList();
+            return filtered;
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Check if user is admin
+        _currentUser = await AuthService.GetCurrentTokenAsync();
+        _isAdmin = _currentUser.Roles.Contains("admin");
+
+        await LoadBarbersAsync();
+    }
+
+    private async Task LoadBarbersAsync()
+    {
+        try
+        {
+            _loading = true;
+            _barbers = await ApiService.GetAsync<List<BarberDto>>("barber/all?includeDeleted=true");
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error loading barbers: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+    
+    private void OpenAddBarberDialog(MouseEventArgs args)
+    {
+        _isEditMode = false;
+        _editingBarber = null;
+        _formModel = new BarberDto();
+        _registrationModel = new BarberRegistrationDto { Role = "barber" };
+        _dialogVisible = true;
+    }
+    
+    private void OpenEditBarberDialog(BarberDto barber)
+    {
+        _isEditMode = true;
+        _editingBarber = barber;
+        _formModel = new BarberDto
+        {
+            Id = barber.Id,
+            UserName = barber.UserName,
+            Email = barber.Email,
+            PhoneNumber = barber.PhoneNumber,
+            IsAvaliable = barber.IsAvaliable,
+            IsDeleted = barber.IsDeleted
+        };
+        _dialogVisible = true;
+    }
+    
+    private async Task SaveBarber()
+    {
+        if (!_formIsValid || _savingBarber) return;
+        
+        try
+        {
+            _savingBarber = true;
+            
+            if (_isEditMode)
+            {
+                // Update existing barber
+                var result = await ApiService.PutAsync<BarberDto, BarberDto>(
+                    $"barber/{_formModel.Id}", 
+                    _formModel);
+                    
+                // Update the barber in the list
+                var index = _barbers!.FindIndex(b => b.Id == result.Id);
+                if (index >= 0)
+                {
+                    _barbers[index] = result;
+                }
+                
+                Snackbar.Add("Barber updated successfully", Severity.Success);
+            }
+            else
+            {
+                // Create new barber
+                _registrationModel.UserName = _formModel.UserName;
+                _registrationModel.Email = _formModel.Email;
+                _registrationModel.PhoneNumber = _formModel.PhoneNumber;
+                
+                var result = await ApiService.PostAsync<BarberRegistrationDto, BarberDto>(
+                    "barber/register", 
+                    _registrationModel);
+                    
+                _barbers!.Add(result);
+                Snackbar.Add("Barber created successfully", Severity.Success);
+            }
+            
+            _dialogVisible = false;
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error saving barber: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            _savingBarber = false;
+        }
+    }
+    
+    private async Task DeleteBarber(BarberDto barber)
+    {
+        var result = await DialogService.ShowMessageBox(
+            "Delete Barber",
+            $"Are you sure you want to delete {barber.UserName}? This action cannot be undone.",
+            yesText: "Delete",
+            cancelText: "Cancel");
+            
+        if (result == true)
+        {
+            try
+            {
+                await ApiService.DeleteAsync($"barber/{barber.Id}");
+                
+                // Update the barber as deleted in the list
+                barber.IsDeleted = true;
+                
+                Snackbar.Add("Barber deleted successfully", Severity.Success);
+                StateHasChanged();
+            }
+            catch (Exception ex)
+            {
+                Snackbar.Add($"Error deleting barber: {ex.Message}", Severity.Error);
+            }
+        }
+    }
+    
+    private IEnumerable<string> ValidatePassword(string password)
+    {
+        if (string.IsNullOrWhiteSpace(password))
+            yield return "Password is required";
+        else if (password.Length < 6)
+            yield return "Password must be at least 6 characters";
+    }
+    
+    private string ValidatePasswordMatch(string confirmPassword)
+    {
+        if (confirmPassword != _registrationModel.Password)
+            return "Passwords do not match";
+        return null;
+    }
 }
