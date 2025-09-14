@@ -36,9 +36,19 @@
             {
                 <MudItem xs="12" sm="6" md="4">
                     <MudPaper Class="service-card" Elevation="2">
+                       @*  <MudCardContent>
+                            <div class="d-flex justify-space-between align-center mb-2">
+                                <MudText Typo="Typo.h6">@service.Name</MudText>
+                                <MudChip Color="Color.Success"
+                                         Size="Size.Medium"
+                                         T="string">
+                                    @service.Price.ToString("C")
+                                </MudChip>
+                            </div>
+                        </MudCardContent> *@
+                        
                         <div class="service-content pa-4">
                             <div class="d-flex justify-space-between align-center mb-2">
-                                <MudIcon Icon="@Icons.Material.Filled.ContentCut" Size="Size.Large" Color="Color.Primary" />
                                 <MudText Typo="Typo.h5" Color="Color.Success" Class="font-weight-bold">
                                     @service.Price.ToString("C")
                                 </MudText>
@@ -47,20 +57,17 @@
                         </div>
 
                         <AuthorizeView Roles="admin">
-                            <MudCardActions Class="service-actions pa-2">
+                            <MudCardActions Class="service-actions">
                                 <MudButton Variant="Variant.Text"
                                            Color="Color.Primary"
                                            StartIcon="@Icons.Material.Filled.Edit"
-                                           OnClick="@(() => OpenEditServiceDialog(service))"
-                                           FullWidth="false">
+                                           OnClick="@(() => OpenEditServiceDialog(service))">
                                     Edit
                                 </MudButton>
-                                <MudSpacer />
                                 <MudButton Variant="Variant.Text"
                                            Color="Color.Error"
                                            StartIcon="@Icons.Material.Filled.Delete"
-                                           OnClick="@(() => DeleteService(service))"
-                                           FullWidth="false">
+                                           OnClick="@(() => DeleteService(service))">
                                     Delete
                                 </MudButton>
                             </MudCardActions>
@@ -132,34 +139,20 @@
     .service-card {
         position: relative;
         transition: all 0.3s ease;
-        overflow: hidden;
-        background: linear-gradient(135deg, var(--mud-palette-surface) 0%, var(--mud-palette-surface) 100%);
     }
 
         .service-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
         }
 
-    .service-content {
-        min-height: 120px;
-    }
-
     .service-actions {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        background: rgba(0,0,0,0.05);
-        backdrop-filter: blur(10px);
         opacity: 0;
-        transform: translateY(100%);
-        transition: all 0.3s ease;
+        transition: opacity 0.3s ease;
     }
 
     .service-card:hover .service-actions {
         opacity: 1;
-        transform: translateY(0);
     }
 </style>
 
