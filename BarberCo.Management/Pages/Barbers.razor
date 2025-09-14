@@ -13,7 +13,13 @@
 <MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
     <MudText Typo="Typo.h4" Class="mb-4">Barbers</MudText>
     
-    <MudPaper Elevation="0" Class="d-flex justify-space-between align-left mb-4">
+    <MudPaper Elevation="0" Class="d-flex justify-end align-center mb-4 gap-4">
+
+        <MudSwitch @bind-Value="_showDeleted"
+                   Label="Show deleted"
+                   Color="Color.Secondary"
+                   Class="mr-2"/>
+
         <AuthorizeView Roles="admin">
             <MudButton Variant="Variant.Filled"
                        Color="Color.Primary"
@@ -23,10 +29,6 @@
             </MudButton>
         </AuthorizeView>
 
-        <MudSwitch @bind-Value="_showDeleted"
-                   Label="Show deleted"
-                   Color="Color.Secondary"
-                   Class="mr-2"/>
     </MudPaper>
     
     @if (_loading)
