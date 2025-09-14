@@ -36,17 +36,6 @@
             {
                 <MudItem xs="12" sm="6" md="4">
                     <MudPaper Class="service-card" Elevation="2">
-                       @*  <MudCardContent>
-                            <div class="d-flex justify-space-between align-center mb-2">
-                                <MudText Typo="Typo.h6">@service.Name</MudText>
-                                <MudChip Color="Color.Success"
-                                         Size="Size.Medium"
-                                         T="string">
-                                    @service.Price.ToString("C")
-                                </MudChip>
-                            </div>
-                        </MudCardContent> *@
-                        
                         <div class="service-content pa-4">
                             <div class="d-flex justify-space-between align-center mb-2">
                                 <MudText Typo="Typo.h5" Color="Color.Success" Class="font-weight-bold">
@@ -57,7 +46,7 @@
                         </div>
 
                         <AuthorizeView Roles="admin">
-                            <MudCardActions Class="service-actions">
+                            <div Class="service-actions">
                                 <MudButton Variant="Variant.Text"
                                            Color="Color.Primary"
                                            StartIcon="@Icons.Material.Filled.Edit"
@@ -70,7 +59,7 @@
                                            OnClick="@(() => DeleteService(service))">
                                     Delete
                                 </MudButton>
-                            </MudCardActions>
+                            </div>
                         </AuthorizeView>
                     </MudPaper>
                 </MudItem>
@@ -139,20 +128,30 @@
     .service-card {
         position: relative;
         transition: all 0.3s ease;
+        overflow: hidden;
     }
 
-        .service-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-        }
+    .service-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
 
     .service-actions {
-        opacity: 0;
-        transition: opacity 0.3s ease;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 8px;
+        background: rgba(var(--mud-palette-surface-rgb), 0.95);
+        backdrop-filter: blur(10px);
+        display: flex;
+        justify-content: space-around;
+        transform: translateY(100%);
+        transition: transform 0.3s ease;
     }
 
     .service-card:hover .service-actions {
-        opacity: 1;
+        transform: translateY(0);
     }
 </style>
 
