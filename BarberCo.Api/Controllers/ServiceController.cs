@@ -35,8 +35,28 @@ namespace BarberCo.Api.Controllers
             }
         }
 
-        [HttpPut("{id}")]
+        [HttpGet("{id}")]
         [Authorize(AuthenticationSchemes = "Bearer")]
+        public async Task<ActionResult<Service>> GetService(int id, CancellationToken token)
+        {
+            try
+            {
+                var service = await _serviceRepo.GetServiceByIdAsync(id, token);
+                if (service == null)
+                {
+                    return NotFound();
+                }
+                return Ok(service);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request.");
+            }
+        }
+
+        [HttpPut("{id}")]
+        [Authorize(AuthenticationSchemes = "Bearer", Roles ="admin")]
         public async Task<ActionResult<Service>> PutService(int id, [FromBody] ServiceUpdateDto service, CancellationToken token)
         {
             try
@@ -58,7 +78,7 @@ namespace BarberCo.Api.Controllers
         }
 
         [HttpPost]
-        [Authorize(AuthenticationSchemes = "Bearer")]
+        [Authorize(AuthenticationSchemes = "Bearer", Roles ="admin")]
         public async Task<ActionResult<Service>> PostService([FromBody] ServiceUpdateDto newService, CancellationToken token)
         {
             try
@@ -75,7 +95,7 @@ namespace BarberCo.Api.Controllers
 
 
         [HttpDelete("{id}")]
-        [Authorize(AuthenticationSchemes = "Bearer")]
+        [Authorize(AuthenticationSchemes = "Bearer", Roles ="admin")]
         public async Task<ActionResult> DeleteService(int id, CancellationToken token)
         {
             try
