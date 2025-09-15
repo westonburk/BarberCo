@@ -4,7 +4,7 @@
 @using BarberCo.SharedLibrary.Models
 @using Microsoft.AspNetCore.Components.Authorization
 @using System.ComponentModel.DataAnnotations
-@inject IBarberCoApiService ApiService
+@inject IServiceService ServiceService
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
 @inject IAuthService AuthService
@@ -168,7 +168,7 @@
         try
         {
             _loading = true;
-            _services = await ApiService.GetAsync<List<Service>>("service");
+            _services = await ServiceService.GetAllServicesAsync();
         }
         catch (Exception ex)
         {
@@ -211,9 +211,7 @@
             if (_isEditMode && _editingService != null)
             {
                 // Update existing service
-                var result = await ApiService.PutAsync<ServiceUpdateDto, Service>(
-                    $"service/{_editingService.Id}",
-                    _formModel);
+                var result = await ServiceService.UpdateServiceAsync(_formModel, _editingService);
 
                 // Update the service in the list
                 var index = _services!.FindIndex(s => s.Id == result.Id);
@@ -227,9 +225,7 @@
             else
             {
                 // Create new service
-                var result = await ApiService.PostAsync<ServiceUpdateDto, Service>(
-                    "service",
-                    _formModel);
+                var result = await ServiceService.CreateServiceAsync(_formModel);
 
                 _services!.Add(result);
                 _services = _services.OrderBy(s => s.Name).ToList(); // Keep list sorted
@@ -262,7 +258,7 @@
         {
             try
             {
-                await ApiService.DeleteAsync($"service/{service.Id}");
+                await ServiceService.DeleteServiceAsync(service);
 
                 // Remove the service from the list
                 _services!.Remove(service);
