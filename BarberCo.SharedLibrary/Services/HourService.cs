@@ -1,4 +1,5 @@
-﻿using BarberCo.SharedLibrary.Models;
+﻿using BarberCo.SharedLibrary.Dtos;
+using BarberCo.SharedLibrary.Models;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -40,6 +41,11 @@ namespace BarberCo.SharedLibrary.Services
                 results.Add((sort, hour));
             }
             return results;
+        }
+
+        public Task<Hour> UpdateHourAsync(Hour hour, HourUpdateDto dto)
+        {
+            return _apiService.PutAsync<HourUpdateDto, Hour>($"hour/{hour.Id}", dto);
         }
     }
 }

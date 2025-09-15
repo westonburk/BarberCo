@@ -32,8 +32,8 @@ namespace BarberCo.DataAccess.Repositories
 
         public async Task<Hour> UpdateHourAsync(Hour hour, HourUpdateDto changed, CancellationToken token)
         {
-            var startTime = new DateTime(2000, 12, 1, hour.StartTime.Hour, hour.StartTime.Minute, 0);
-            var endTime = new DateTime(2000, 12, 1, hour.EndTime.Hour, hour.EndTime.Minute, 0);
+            var startTime = new DateTime(2000, 12, 1, changed.StartTime.Hour, changed.StartTime.Minute, 0);
+            var endTime = new DateTime(2000, 12, 1, changed.EndTime.Hour, changed.EndTime.Minute, 0);
             if (changed.IsClosed == false && startTime > endTime)
                 throw new Exception($"{nameof(hour.StartTime)} cannot be before {nameof(hour.EndTime)}");
 

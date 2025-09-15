@@ -1,4 +1,5 @@
-﻿using BarberCo.SharedLibrary.Models;
+﻿using BarberCo.SharedLibrary.Dtos;
+using BarberCo.SharedLibrary.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,5 +11,6 @@ namespace BarberCo.SharedLibrary.Services
     public interface IHourService
     {
         Task<List<(int sort, Hour hour)>> GetAllHoursAsync();
+        Task<Hour> UpdateHourAsync(Hour hour, HourUpdateDto dto);
     }
 }

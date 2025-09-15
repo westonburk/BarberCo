@@ -1,0 +1,300 @@
+﻿@page "/hours"
+@using BarberCo.SharedLibrary.Models
+@using BarberCo.SharedLibrary.Services
+@using BarberCo.SharedLibrary.Dtos
+@inject IHourService HourService
+@inject IAuthService AuthService
+@inject ISnackbar Snackbar
+
+<PageTitle>Business Hours</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
+    <MudText Typo="Typo.h4" Class="mb-4">Business Hours</MudText>
+
+    @if (_loading)
+    {
+        <MudProgressCircular Color="Color.Primary" Indeterminate="true" Class="my-8" />
+    }
+    else
+    {
+        <MudGrid>
+            @foreach (var hour in _hours)
+            {
+                <MudItem xs="12" sm="6" md="4">
+                    <MudCard Class="hour-card" Elevation="2">
+                        <MudCardContent>
+                            <div class="d-flex justify-space-between align-start mb-3">
+                                <MudText Typo="Typo.h6">@hour.hour.DayOfWeek</MudText>
+
+                                <div class="d-flex align-center gap-2">
+                                    <MudChip Color="@(hour.hour.IsClosed? Color.Default: Color.Success)"
+                                             Size="Size.Small"
+                                             T="string">
+                                        @(hour.hour.IsClosed ? "Closed" : "Open")
+                                    </MudChip>
+
+                                    <AuthorizeView Roles="admin">
+                                        <MudMenu Icon="@Icons.Material.Filled.MoreVert" Size="Size.Small" Dense="true">
+                                            <MudMenuItem Icon="@Icons.Material.Filled.Edit"
+                                                         OnClick="@(() => OpenEditHourDialog(hour.hour))">
+                                                Edit
+                                            </MudMenuItem>
+                                        </MudMenu>
+                                    </AuthorizeView>
+                                </div>
+                            </div>
+
+                            @if (!hour.hour.IsClosed)
+                            {
+                                <div class="d-flex align-center gap-2 mb-2">
+                                    <MudIcon Icon="@Icons.Material.Filled.Schedule" Size="Size.Small" Color="Color.Secondary" />
+                                    <MudText Typo="Typo.body1">
+                                        @TimeOnly.FromDateTime(hour.hour.StartTime).ToString("h:mm tt") -
+                                        @TimeOnly.FromDateTime(hour.hour.EndTime).ToString("h:mm tt")
+                                    </MudText>
+                                </div>
+
+                                <MudText Typo="Typo.body2" Color="Color.Secondary">
+                                    @{
+                                        var duration = TimeOnly.FromDateTime(hour.hour.EndTime) - TimeOnly.FromDateTime(hour.hour.StartTime);
+                                        var hours = (int)duration.TotalHours;
+                                        var minutes = duration.Minutes;
+                                    }
+                                    @if (minutes == 0)
+                                    {
+                                        @($"{hours} hours")
+                                    }
+                                    else
+                                    {
+                                        @($"{hours} hours {minutes} minutes")
+                                    }
+                                </MudText>
+                            }
+                            else
+                            {
+                                <MudText Typo="Typo.body1" Color="Color.Secondary" Class="mt-2">
+                                    No business hours
+                                </MudText>
+                            }
+                        </MudCardContent>
+                    </MudCard>
+                </MudItem>
+            }
+        </MudGrid>
+    }
+</MudContainer>
+
+@* Edit Hour Dialog *@
+<MudDialog @bind-Visible="_dialogVisible" Options="@(new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true })">
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            Edit Hours - @_editingHour?.DayOfWeek
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudForm @ref="_form" @bind-IsValid="@_formIsValid">
+            <MudGrid>
+                <MudItem xs="12">
+                    <MudSwitch @bind-Value="_formModel.IsClosed"
+                               Label="Closed for business"
+                               Color="Color.Primary"
+                               Class="mb-4" />
+                </MudItem>
+
+                @if (!_formModel.IsClosed)
+                {
+                    <MudItem xs="12" sm="6">
+                        <MudSelect T="TimeOnly"
+                                   Label="Opening Time"
+                                   @bind-Value="_formModel.StartTime"
+                                   Required="true"
+                                   RequiredError="Opening time is required"
+                                   Variant="Variant.Outlined"
+                                   AnchorOrigin="Origin.BottomCenter">
+                            @foreach (var time in _timeOptions)
+                            {
+                                <MudSelectItem Value="@time">@time.ToString("h:mm tt")</MudSelectItem>
+                            }
+                        </MudSelect>
+                    </MudItem>
+
+                    <MudItem xs="12" sm="6">
+                        <MudSelect T="TimeOnly"
+                                   Label="Closing Time"
+                                   @bind-Value="_formModel.EndTime"
+                                   Required="true"
+                                   RequiredError="Closing time is required"
+                                   Validation="@(new Func<TimeOnly, string>(ValidateEndTime))"
+                                   Variant="Variant.Outlined"
+                                   AnchorOrigin="Origin.BottomCenter">
+                            @foreach (var time in _timeOptions.Where(t => t > _formModel.StartTime))
+                            {
+                                <MudSelectItem Value="@time">@time.ToString("h:mm tt")</MudSelectItem>
+                            }
+                        </MudSelect>
+                    </MudItem>
+
+                    <MudItem xs="12">
+                        <MudAlert Severity="Severity.Info" Dense="true">
+                            Business hours: @_formModel.StartTime.ToString("h:mm tt") to @_formModel.EndTime.ToString("h:mm tt")
+                            @{
+                                var duration = _formModel.EndTime - _formModel.StartTime;
+                                var hours = (int)duration.TotalHours;
+                            }
+                            (@hours hours)
+                        </MudAlert>
+                    </MudItem>
+                }
+                else
+                {
+                    <MudItem xs="12">
+                        <MudAlert Severity="Severity.Warning" Dense="true">
+                            This day will be marked as closed. Customers won't be able to book appointments.
+                        </MudAlert>
+                    </MudItem>
+                }
+            </MudGrid>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="@(() => _dialogVisible = false)">Cancel</MudButton>
+        <MudButton Color="Color.Primary"
+                   Variant="Variant.Filled"
+                   OnClick="SaveHour"
+                   Disabled="@(!_formIsValid || _saving)">
+            @if (_saving)
+            {
+                <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
+            }
+            Update Hours
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+<style>
+    .hour-card {
+        position: relative;
+        transition: all 0.3s ease;
+        min-height: 140px;
+    }
+
+    .hour-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+</style>
+
+@code {
+    private MudForm _form;
+    private bool _formIsValid;
+    private bool _loading = true;
+    private bool _saving = false;
+    private List<(int sort, Hour hour)> _hours = new();
+    private List<TimeOnly> _timeOptions = new();
+    private bool _isAdmin = false;
+    private TokenDto _currentUser;
+
+    // Dialog state
+    private bool _dialogVisible = false;
+    private Hour? _editingHour;
+    private HourFormModel _formModel = new();
+
+    public class HourFormModel
+    {
+        public TimeOnly StartTime { get; set; }
+        public TimeOnly EndTime { get; set; }
+        public bool IsClosed { get; set; }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Check if user is admin
+        _currentUser = await AuthService.GetCurrentTokenAsync();
+        _isAdmin = _currentUser.Roles.Contains("admin");
+
+        // Generate time options (every hour from 12:00 AM to 11:00 PM)
+        for (int hour = 0; hour < 24; hour++)
+        {
+            _timeOptions.Add(new TimeOnly(hour, 0));
+        }
+
+        await LoadHours();
+    }
+
+    private async Task LoadHours()
+    {
+        try
+        {
+            _loading = true;
+            _hours = await HourService.GetAllHoursAsync();
+            _hours = _hours.OrderBy(h => h.sort).ToList();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error loading hours: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private void OpenEditHourDialog(Hour hour)
+    {
+        _editingHour = hour;
+        _formModel = new HourFormModel
+        {
+            StartTime = TimeOnly.FromDateTime(hour.StartTime),
+            EndTime = TimeOnly.FromDateTime(hour.EndTime),
+            IsClosed = hour.IsClosed
+        };
+        _dialogVisible = true;
+    }
+
+    private async Task SaveHour()
+    {
+        if (!_formIsValid || _saving || _editingHour == null) return;
+
+        try
+        {
+            _saving = true;
+
+            // date portion doesn't matter. it is taken out by the api
+            var seedDate = new DateOnly(2020, 12, 1);
+            var dto = new HourUpdateDto
+            {
+                StartTime = seedDate.ToDateTime(_formModel.StartTime),
+                EndTime = seedDate.ToDateTime(_formModel.EndTime),
+                IsClosed = _formModel.IsClosed
+            };
+
+            var result = await HourService.UpdateHourAsync(_editingHour, dto);
+
+            // Update the hour in the list
+            var index = _hours.FindIndex(h => h.hour.Id == result.Id);
+            if (index >= 0)
+            {
+                _hours[index] = (_hours[index].sort, result);
+            }
+
+            _dialogVisible = false;
+            Snackbar.Add("Hours updated successfully", Severity.Success);
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error saving hours: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
+
+    private string ValidateEndTime(TimeOnly endTime)
+    {
+        if (endTime <= _formModel.StartTime)
+            return "Closing time must be after opening time";
+        return null;
+    }
+}
