@@ -1,5 +1,401 @@
-﻿<h3>Appointments</h3>
+﻿@page "/appointments"
+@using BarberCo.SharedLibrary.Models
+@using BarberCo.SharedLibrary.Services
+@using BarberCo.SharedLibrary.Dtos
+@using Microsoft.AspNetCore.Components.Authorization
+@using System.ComponentModel.DataAnnotations
+@inject IAppointmentService AppointmentService
+@inject IServiceService ServiceService
+@inject IAuthService AuthService
+@inject ISnackbar Snackbar
+
+<PageTitle>Appointments</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
+    <MudText Typo="Typo.h4" Class="mb-4">Appointments</MudText>
+    
+    @* Add appointment button aligned to the right *@
+    <MudPaper Elevation="0" Class="d-flex justify-end mb-4">
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   StartIcon="@Icons.Material.Filled.Add"
+                   OnClick="OpenAddAppointmentDialog">
+            Add Appointment
+        </MudButton>
+    </MudPaper>
+    
+    @if (_loading)
+    {
+        <MudProgressCircular Color="Color.Primary" Indeterminate="true" Class="my-8" />
+    }
+    else if (_appointments == null || !_appointments.Any())
+    {
+        <MudPaper Elevation="1" Class="pa-8 text-center">
+            <MudIcon Icon="@Icons.Material.Filled.EventBusy" Size="Size.Large" Color="Color.Default" Class="mb-4" />
+            <MudText Typo="Typo.h6">No appointments found</MudText>
+            <MudText Typo="Typo.body2" Color="Color.Secondary">
+                No appointments have been scheduled yet.
+            </MudText>
+        </MudPaper>
+    }
+    else
+    {
+        <MudTabs Elevation="0" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
+            <MudTabPanel Text="Upcoming" Icon="@Icons.Material.Filled.Event">
+                <MudGrid>
+                    @foreach (var appointment in _appointments.Where(a => a.DateTime >= DateTime.Now).OrderBy(a => a.DateTime))
+                    {
+                        <MudItem xs="12" sm="6" md="4">
+                            @RenderAppointmentCard(appointment, false)
+                        </MudItem>
+                    }
+                </MudGrid>
+            </MudTabPanel>
+            <MudTabPanel Text="Past" Icon="@Icons.Material.Filled.History">
+                <MudGrid>
+                    @foreach (var appointment in _appointments.Where(a => a.DateTime < DateTime.Now).OrderByDescending(a => a.DateTime))
+                    {
+                        <MudItem xs="12" sm="6" md="4">
+                            @RenderAppointmentCard(appointment, true)
+                        </MudItem>
+                    }
+                </MudGrid>
+            </MudTabPanel>
+        </MudTabs>
+    }
+</MudContainer>
+
+@* Add/View Appointment Dialog *@
+<MudDialog @bind-Visible="_dialogVisible" Options="@(new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true })">
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            @(_isViewMode ? "Appointment Details" : "New Appointment")
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        @if (_isViewMode && _viewingAppointment != null)
+        {
+            <MudGrid>
+                <MudItem xs="12">
+                    <MudTextField Label="Customer Name" 
+                                  Value="@_viewingAppointment.CustomerName" 
+                                  ReadOnly="true"
+                                  Variant="Variant.Outlined" />
+                </MudItem>
+                <MudItem xs="12">
+                    <MudTextField Label="Phone" 
+                                  Value="@_viewingAppointment.CustomerPhone" 
+                                  ReadOnly="true"
+                                  Variant="Variant.Outlined" />
+                </MudItem>
+                <MudItem xs="6">
+                    <MudTextField Label="Date" 
+                                  Value="@_viewingAppointment.DateTime.ToString("MMM dd, yyyy")" 
+                                  ReadOnly="true"
+                                  Variant="Variant.Outlined" />
+                </MudItem>
+                <MudItem xs="6">
+                    <MudTextField Label="Time" 
+                                  Value="@_viewingAppointment.DateTime.ToString("h:mm tt")" 
+                                  ReadOnly="true"
+                                  Variant="Variant.Outlined" />
+                </MudItem>
+                <MudItem xs="12">
+                    <MudText Typo="Typo.subtitle2" Class="mb-2">Services</MudText>
+                    @foreach (var service in _viewingAppointment.Services)
+                    {
+                        <MudChip Color="Color.Primary" Size="Size.Small" T="string">
+                            @service.Name - @service.Price.ToString("C")
+                        </MudChip>
+                    }
+                </MudItem>
+            </MudGrid>
+        }
+        else
+        {
+            <MudForm @ref="_form" @bind-IsValid="@_formIsValid">
+                <MudGrid>
+                    <MudItem xs="12">
+                        <MudTextField T="string" 
+                                      Label="Customer Name" 
+                                      @bind-Value="_formModel.CustomerName" 
+                                      Required="true" 
+                                      RequiredError="Name is required"
+                                      Variant="Variant.Outlined"
+                                      Immediate="true" />
+                    </MudItem>
+                    
+                    <MudItem xs="12">
+                        <MudTextField T="string" 
+                                      Label="Phone" 
+                                      @bind-Value="_formModel.CustomerPhone" 
+                                      Required="true" 
+                                      RequiredError="Phone is required"
+                                      Validation="@(new RegularExpressionAttribute(@"^\(\d{3}\) \d{3}-\d{4}$") { ErrorMessage = "Phone must be in format (123) 456-7890" })"
+                                      Variant="Variant.Outlined"
+                                      Immediate="true"
+                                      Mask="@(new PatternMask("(000) 000-0000"))"
+                                      Placeholder="(123) 456-7890" />
+                    </MudItem>
+                    
+                    <MudItem xs="6">
+                        <MudDatePicker Label="Date" 
+                                       @bind-Date="_selectedDate"
+                                       @bind-Date:after="OnDateChanged"
+                                       Required="true"
+                                       RequiredError="Date is required"
+                                       MinDate="DateTime.Today"
+                                       Variant="Variant.Outlined" />
+                    </MudItem>
+                    
+                    <MudItem xs="6">
+                        <MudSelect T="DateTime?" 
+                                   Label="Time" 
+                                   @bind-Value="_selectedTime"
+                                   Required="true"
+                                   RequiredError="Time is required"
+                                   Variant="Variant.Outlined"
+                                   Disabled="@(!_canEditTime)"
+                                   AnchorOrigin="Origin.BottomCenter">
+                            @if (_availableTimes.Any())
+                            {
+                                @foreach (var time in _availableTimes)
+                                {
+                                    <MudSelectItem Value="@((DateTime?)time.value)">@time.display</MudSelectItem>
+                                }
+                            }
+                            else
+                            {
+                                <MudSelectItem Value="@((DateTime?)null)" Disabled="true">No availability</MudSelectItem>
+                            }
+                        </MudSelect>
+                    </MudItem>
+                    
+                    <MudItem xs="12">
+                        <MudText Typo="Typo.subtitle2" Class="mb-2">Select Services</MudText>
+                        <MudChipSet @bind-SelectedValues="_selectedServiceIds" T="int?" SelectionMode="SelectionMode.MultiSelection">
+                            @foreach (var service in _services)
+                            {
+                                <MudChip Text="@($"{service.Name} - {service.Price:C}")" 
+                                         Value="@service.Id"
+                                         Color="Color.Primary"/>
+                            }
+                        </MudChipSet>
+                        @if (!_selectedServiceIds.Any())
+                        {
+                            <MudText Color="Color.Error" Typo="Typo.caption">Please select at least one service</MudText>
+                        }
+                    </MudItem>
+                </MudGrid>
+            </MudForm>
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="@(() => _dialogVisible = false)">
+            @(_isViewMode ? "Close" : "Cancel")
+        </MudButton>
+        @if (!_isViewMode)
+        {
+            <MudButton Color="Color.Primary" 
+                       Variant="Variant.Filled" 
+                       OnClick="SaveAppointment"
+                       Disabled="@(!_formIsValid || _saving || !_selectedServiceIds.Any())">
+                @if (_saving)
+                {
+                    <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
+                }
+                Create Appointment
+            </MudButton>
+        }
+    </DialogActions>
+</MudDialog>
+
+<style>
+    .appointment-card {
+        position: relative;
+        transition: all 0.3s ease;
+    }
+    
+    .appointment-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+</style>
 
 @code {
+    private MudForm _form;
+    private bool _formIsValid;
+    private bool _loading = true;
+    private bool _saving = false;
+    private List<Appointment>? _appointments;
+    private List<Service> _services = new();
+    private List<(DateTime value, string display)> _availableTimes = new();
+    private bool _canEditTime = false;
 
+    // Dialog state
+    private bool _dialogVisible = false;
+    private bool _isViewMode = false;
+    private Appointment? _viewingAppointment;
+    private AppointmentFormModel _formModel = new();
+    private DateTime? _selectedDate = DateTime.Today;
+    private DateTime? _selectedTime;
+    private IReadOnlyCollection<int?> _selectedServiceIds = [];
+
+    public class AppointmentFormModel
+    {
+        public string CustomerName { get; set; } = "";
+        public string CustomerPhone { get; set; } = "";
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAppointments();
+        await LoadServices();
+    }
+
+    private async Task LoadAppointments()
+    {
+        try
+        {
+            _loading = true;
+            _appointments = await AppointmentService.GetAppointmentsAsync();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error loading appointments: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+    
+    private async Task LoadServices()
+    {
+        try
+        {
+            _services = await ServiceService.GetAllServicesAsync();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error loading services: {ex.Message}", Severity.Error);
+        }
+    }
+    
+    private async Task OnDateChanged()
+    {
+        if (_selectedDate.HasValue)
+        {
+            _selectedTime = null;
+            _canEditTime = false;
+
+            var validTimes = await AppointmentService.GetValidTimesForDayAsync(_selectedDate.Value);
+            _availableTimes = validTimes;
+            _canEditTime = validTimes.Any();
+
+            if (!_canEditTime)
+            {
+                Snackbar.Add("No available times for selected date", Severity.Warning);
+            }
+        }
+    }
+    
+    private void OpenAddAppointmentDialog(MouseEventArgs args)
+    {
+        _isViewMode = false;
+        _viewingAppointment = null;
+        _formModel = new AppointmentFormModel();
+        _selectedDate = DateTime.Today;
+        _selectedTime = null;
+        _selectedServiceIds = [];
+        _availableTimes = new List<(DateTime, string)>();
+        _canEditTime = false;
+        _dialogVisible = true;
+        
+        // Load times for today
+        //InvokeAsync(async () => await OnDateChanged());
+        InvokeAsync(OnDateChanged);
+    }
+    
+    private void ViewAppointment(Appointment appointment)
+    {
+        _isViewMode = true;
+        _viewingAppointment = appointment;
+        _dialogVisible = true;
+    }
+    
+    private async Task SaveAppointment()
+    {
+        if (!_formIsValid || _saving || !_selectedServiceIds.Any() || !_selectedTime.HasValue) return;
+        
+        try
+        {
+            _saving = true;
+            
+            var dto = new AppointmentUpdateDto
+            {
+                CustomerName = _formModel.CustomerName,
+                CustomerPhone = _formModel.CustomerPhone,
+                DateTime = _selectedTime.Value,
+                ServiceIds = _selectedServiceIds.Cast<int>().ToList()
+            };
+            
+            var result = await AppointmentService.SubmitAppointmentAsync(dto);
+            
+            // Reload appointments to show the new one
+            await LoadAppointments();
+            
+            _dialogVisible = false;
+            Snackbar.Add("Appointment created successfully", Severity.Success);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error creating appointment: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
+    
+    RenderFragment RenderAppointmentCard(Appointment appointment, bool isPast) => __builder =>
+    {
+        <MudCard Class="appointment-card" Elevation="2">
+            <MudCardContent>
+                <div class="d-flex justify-space-between align-start mb-2">
+                    <div>
+                        <MudText Typo="Typo.subtitle2" Color="Color.Primary">
+                            @($"{appointment.DateTime:MMM d, yyyy h:mm tt}")
+                        </MudText>
+                    </div>
+                    
+                    <MudMenu Icon="@Icons.Material.Filled.MoreVert" Size="Size.Small" Dense="true">
+                        <MudMenuItem Icon="@Icons.Material.Filled.Visibility"
+                                     OnClick="@(() => ViewAppointment(appointment))">
+                            View Details
+                        </MudMenuItem>
+                    </MudMenu>
+                </div>
+                
+                <MudText Typo="Typo.body1" Class="mb-1">
+                    <strong>@appointment.CustomerName</strong>
+                </MudText>
+                
+                <div class="d-flex align-center gap-2 mb-2">
+                    <MudIcon Icon="@Icons.Material.Filled.Phone" Size="Size.Small" Color="Color.Secondary" />
+                    <MudText Typo="Typo.body2">@appointment.CustomerPhone</MudText>
+                </div>
+                
+                <div class="mt-3">
+                    @foreach (var service in appointment.Services)
+                    {
+                        <MudChip Size="Size.Small" Color="Color.Primary" T="string">
+                            @service.Name
+                        </MudChip>
+                    }
+                </div>
+                
+            </MudCardContent>
+        </MudCard>
+    };
 }

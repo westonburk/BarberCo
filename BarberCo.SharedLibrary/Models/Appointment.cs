@@ -12,6 +12,6 @@ namespace BarberCo.SharedLibrary.Models
         public DateTime DateTime { get; set; }
         public string CustomerName { get; set; }
         public string CustomerPhone { get; set; }
-        public List<Service> Services { get; } = [];
+        public List<Service> Services { get; set; } = [];
     }
 }

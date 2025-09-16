@@ -74,5 +74,10 @@ namespace BarberCo.SharedLibrary.Services
         {
             return _apiService.PostAsync<AppointmentUpdateDto, Appointment>("appointment", newAppointment);
         }
+
+        public Task<List<Appointment>> GetAppointmentsAsync()
+        {
+            return _apiService.GetAsync<List<Appointment>>("appointment");
+        }
     }
 }
