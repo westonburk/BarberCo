@@ -14,7 +14,6 @@
 <MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
     <MudText Typo="Typo.h4" Class="mb-4">Appointments</MudText>
     
-    @* Add appointment button aligned to the right *@
     <MudPaper Elevation="0" Class="d-flex justify-end mb-4">
         <MudButton Variant="Variant.Filled"
                    Color="Color.Primary"
@@ -27,16 +26,6 @@
     @if (_loading)
     {
         <MudProgressCircular Color="Color.Primary" Indeterminate="true" Class="my-8" />
-    }
-    else if (_appointments == null || !_appointments.Any())
-    {
-        <MudPaper Elevation="1" Class="pa-8 text-center">
-            <MudIcon Icon="@Icons.Material.Filled.EventBusy" Size="Size.Large" Color="Color.Default" Class="mb-4" />
-            <MudText Typo="Typo.h6">No appointments found</MudText>
-            <MudText Typo="Typo.body2" Color="Color.Secondary">
-                No appointments have been scheduled yet.
-            </MudText>
-        </MudPaper>
     }
     else
     {
@@ -173,15 +162,15 @@
                     
                     <MudItem xs="12">
                         <MudText Typo="Typo.subtitle2" Class="mb-2">Select Services</MudText>
-                        <MudChipSet @bind-SelectedValues="_selectedServiceIds" T="int?" SelectionMode="SelectionMode.MultiSelection">
+                        <MudChipSet @bind-SelectedValues="_selectedServices" T="Service" SelectionMode="SelectionMode.MultiSelection">
                             @foreach (var service in _services)
                             {
                                 <MudChip Text="@($"{service.Name} - {service.Price:C}")" 
-                                         Value="@service.Id"
-                                         Color="Color.Primary"/>
+                                         Value="@service"
+                                         SelectedColor="Color.Primary"/>
                             }
                         </MudChipSet>
-                        @if (!_selectedServiceIds.Any())
+                        @if (!_selectedServices.Any())
                         {
                             <MudText Color="Color.Error" Typo="Typo.caption">Please select at least one service</MudText>
                         }
@@ -199,7 +188,7 @@
             <MudButton Color="Color.Primary" 
                        Variant="Variant.Filled" 
                        OnClick="SaveAppointment"
-                       Disabled="@(!_formIsValid || _saving || !_selectedServiceIds.Any())">
+                       Disabled="@(!_formIsValid || _saving || !_selectedServices.Any())">
                 @if (_saving)
                 {
                     <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
@@ -227,7 +216,7 @@
     private bool _formIsValid;
     private bool _loading = true;
     private bool _saving = false;
-    private List<Appointment>? _appointments;
+    private List<Appointment> _appointments = [];
     private List<Service> _services = new();
     private List<(DateTime value, string display)> _availableTimes = new();
     private bool _canEditTime = false;
@@ -239,7 +228,7 @@
     private AppointmentFormModel _formModel = new();
     private DateTime? _selectedDate = DateTime.Today;
     private DateTime? _selectedTime;
-    private IReadOnlyCollection<int?> _selectedServiceIds = [];
+    private IReadOnlyCollection<Service?> _selectedServices = [];
 
     public class AppointmentFormModel
     {
@@ -307,13 +296,11 @@
         _formModel = new AppointmentFormModel();
         _selectedDate = DateTime.Today;
         _selectedTime = null;
-        _selectedServiceIds = [];
         _availableTimes = new List<(DateTime, string)>();
         _canEditTime = false;
         _dialogVisible = true;
         
         // Load times for today
-        //InvokeAsync(async () => await OnDateChanged());
         InvokeAsync(OnDateChanged);
     }
     
@@ -326,7 +313,7 @@
     
     private async Task SaveAppointment()
     {
-        if (!_formIsValid || _saving || !_selectedServiceIds.Any() || !_selectedTime.HasValue) return;
+        if (!_formIsValid || _saving || !_selectedServices.Any() || !_selectedTime.HasValue) return;
         
         try
         {
@@ -337,7 +324,7 @@
                 CustomerName = _formModel.CustomerName,
                 CustomerPhone = _formModel.CustomerPhone,
                 DateTime = _selectedTime.Value,
-                ServiceIds = _selectedServiceIds.Cast<int>().ToList()
+                ServiceIds = _selectedServices.Where(x => x?.Id != null).Select(x => x.Id).ToList()
             };
             
             var result = await AppointmentService.SubmitAppointmentAsync(dto);

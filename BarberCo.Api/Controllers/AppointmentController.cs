@@ -37,7 +37,7 @@ namespace BarberCo.Api.Controllers
         }
 
         [HttpPost]
-        [Authorize(AuthenticationSchemes = "ApiKey")]
+        [Authorize(AuthenticationSchemes = "Bearer,ApiKey")]
         public async Task<ActionResult<Appointment>> PostAppointment([FromBody] AppointmentUpdateDto newAppt, CancellationToken token)
         {
             try
