@@ -31,39 +31,26 @@
     }
     else
     {
-        <MudGrid>
-            @foreach (var service in _services)
-            {
-                <MudItem xs="12" sm="6" md="4">
-                    <MudPaper Class="service-card" Elevation="2">
-                        <div class="service-content pa-4">
-                            <div class="d-flex justify-space-between align-start">
-                                <div>
-                                    <MudText Typo="Typo.h6" Class="mb-1">@service.Name</MudText>
-                                    <MudText Typo="Typo.h5" Color="Color.Success" Class="font-weight-bold">
-                                        @service.Price.ToString("C")
-                                    </MudText>
-                                </div>
-
-                                <AuthorizeView Roles="admin">
-                                    <MudMenu Icon="@Icons.Material.Filled.MoreVert" Size="Size.Small" Dense="true">
-                                        <MudMenuItem Icon="@Icons.Material.Filled.Edit"
-                                                     OnClick="@(() => OpenEditServiceDialog(service))">
-                                            Edit
-                                        </MudMenuItem>
-                                        <MudMenuItem Icon="@Icons.Material.Filled.Delete"
-                                                     OnClick="@(() => DeleteService(service))">
-                                            Delete
-                                        </MudMenuItem>
-                                    </MudMenu>
-                                </AuthorizeView>
-                            </div>
-                        </div>
-
-                    </MudPaper>
-                </MudItem>
-            }
-        </MudGrid>
+        <MudDataGrid Items="_services" Filterable="false" SortMode="@SortMode.None" Groupable="false">
+            <Columns>
+                <PropertyColumn Property="x => x.Name" />
+                <PropertyColumn Property="x => x.Price" Format="C2" />
+                <TemplateColumn Hidden="@(_isAdmin == false)" CellClass="d-flex justify-end">
+                    <CellTemplate>
+                        <MudMenu Icon="@Icons.Material.Filled.MoreVert" Size="Size.Small" Dense="true">
+                            <MudMenuItem Icon="@Icons.Material.Filled.Edit"
+                                         OnClick="@(() => OpenEditServiceDialog(context.Item))">
+                                Edit
+                            </MudMenuItem>
+                            <MudMenuItem Icon="@Icons.Material.Filled.Delete"
+                                         OnClick="@(() => DeleteService(context.Item))">
+                                Delete
+                            </MudMenuItem>
+                        </MudMenu>
+                    </CellTemplate>
+                </TemplateColumn>
+            </Columns>
+        </MudDataGrid>
     }
 </MudContainer>
 
@@ -94,13 +81,9 @@
                                      @bind-Value="_formModel.Price"
                                      Required="true"
                                      RequiredError="Price is required"
-                                     Validation="@(new Func<decimal, string>(ValidatePrice))"
                                      Variant="Variant.Outlined"
                                      Immediate="true"
                                      Format="C2"
-                                     Min="0.01m"
-                                     Max="9999.99m"
-                                     Step="0.01m"
                                      Adornment="Adornment.Start"
                                      AdornmentIcon="@Icons.Material.Filled.AttachMoney"
                                      HelperText="Enter the service price" />
@@ -122,22 +105,6 @@
         </MudButton>
     </DialogActions>
 </MudDialog>
-
-<style>
-    .service-card {
-        position: relative;
-        transition: all 0.3s ease;
-    }
-
-    .service-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-    }
-
-    .service-content {
-        min-height: 80px;
-    }
-</style>
 
 @code {
     private MudForm _form;
@@ -271,13 +238,5 @@
                 Snackbar.Add($"Error deleting service: {ex.Message}", Severity.Error);
             }
         }
-    }
-
-    private string ValidatePrice(decimal price)
-    {
-        if (price <= 0)
-            return "Price must be greater than $0";
-
-        return null;
     }
 }

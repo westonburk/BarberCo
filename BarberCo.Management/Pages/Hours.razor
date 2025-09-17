@@ -35,7 +35,7 @@
                         </MudChip>
                     </CellTemplate>
                 </TemplateColumn>
-                <TemplateColumn Hidden="@(_isAdmin == false)">
+                <TemplateColumn Hidden="@(_isAdmin == false)" CellClass="edit-grid-cell">
                     <CellTemplate>
                         <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(() => OpenEditHourDialog(context.Item.hour))" />
                     </CellTemplate>
@@ -133,15 +133,8 @@
 </MudDialog>
 
 <style>
-    .hour-card {
-        position: relative;
-        transition: all 0.3s ease;
-        min-height: 140px;
-    }
-
-    .hour-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    .edit-grid-cell {
+       text-align: right;
     }
 </style>
 
