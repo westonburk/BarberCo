@@ -17,70 +17,31 @@
     }
     else
     {
-        <MudGrid>
-            @foreach (var hour in _hours)
-            {
-                <MudItem xs="12" sm="6" md="4">
-                    <MudCard Class="hour-card" Elevation="2">
-                        <MudCardContent>
-                            <div class="d-flex justify-space-between align-start mb-3">
-                                <MudText Typo="Typo.h6">@hour.hour.DayOfWeek</MudText>
-
-                                <div class="d-flex align-center gap-2">
-                                    <MudChip Color="@(hour.hour.IsClosed? Color.Default: Color.Success)"
-                                             Size="Size.Small"
-                                             T="string">
-                                        @(hour.hour.IsClosed ? "Closed" : "Open")
-                                    </MudChip>
-
-                                    <AuthorizeView Roles="admin">
-                                        <MudMenu Icon="@Icons.Material.Filled.MoreVert" Size="Size.Small" Dense="true">
-                                            <MudMenuItem Icon="@Icons.Material.Filled.Edit"
-                                                         OnClick="@(() => OpenEditHourDialog(hour.hour))">
-                                                Edit
-                                            </MudMenuItem>
-                                        </MudMenu>
-                                    </AuthorizeView>
-                                </div>
-                            </div>
-
-                            @if (!hour.hour.IsClosed)
-                            {
-                                <div class="d-flex align-center gap-2 mb-2">
-                                    <MudIcon Icon="@Icons.Material.Filled.Schedule" Size="Size.Small" Color="Color.Secondary" />
-                                    <MudText Typo="Typo.body1">
-                                        @TimeOnly.FromDateTime(hour.hour.StartTime).ToString("h:mm tt") -
-                                        @TimeOnly.FromDateTime(hour.hour.EndTime).ToString("h:mm tt")
-                                    </MudText>
-                                </div>
-
-                                <MudText Typo="Typo.body2" Color="Color.Secondary">
-                                    @{
-                                        var duration = TimeOnly.FromDateTime(hour.hour.EndTime) - TimeOnly.FromDateTime(hour.hour.StartTime);
-                                        var hours = (int)duration.TotalHours;
-                                        var minutes = duration.Minutes;
-                                    }
-                                    @if (minutes == 0)
-                                    {
-                                        @($"{hours} hours")
-                                    }
-                                    else
-                                    {
-                                        @($"{hours} hours {minutes} minutes")
-                                    }
-                                </MudText>
-                            }
-                            else
-                            {
-                                <MudText Typo="Typo.body1" Color="Color.Secondary" Class="mt-2">
-                                    No business hours
-                                </MudText>
-                            }
-                        </MudCardContent>
-                    </MudCard>
-                </MudItem>
-            }
-        </MudGrid>
+        <MudDataGrid Items="_hours" Filterable="false" SortMode="@SortMode.None" Groupable="false">
+            <Columns>
+                <PropertyColumn Property="x => x.hour.DayOfWeek" Title="Day" />
+                <TemplateColumn Title="Open">
+                    <CellTemplate>@(context.Item.hour.IsClosed ? "" : context.Item.hour.StartTime.ToString("h:mm tt"))</CellTemplate>
+                </TemplateColumn>
+                <TemplateColumn Title="Close">
+                    <CellTemplate>@(context.Item.hour.IsClosed ? "" : context.Item.hour.EndTime.ToString("h:mm tt"))</CellTemplate>
+                </TemplateColumn>
+                <TemplateColumn>
+                    <CellTemplate>
+                        <MudChip Color="@(context.Item.hour.IsClosed? Color.Default: Color.Success)"
+                                 Size="Size.Small"
+                                 T="string">
+                            @(context.Item.hour.IsClosed ? "Closed" : "Open")
+                        </MudChip>
+                    </CellTemplate>
+                </TemplateColumn>
+                <TemplateColumn Hidden="@(_isAdmin == false)">
+                    <CellTemplate>
+                        <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(() => OpenEditHourDialog(context.Item.hour))" />
+                    </CellTemplate>
+                </TemplateColumn>
+            </Columns>
+        </MudDataGrid>
     }
 </MudContainer>
 
