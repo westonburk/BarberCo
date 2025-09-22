@@ -319,24 +319,66 @@
                             <MudText Typo="Typo.caption" Color="Color.Secondary">+@(day.Appointments.Count - 3)</MudText>
                         }
                     }
+                    // else
+                    // {
+                    //     // On desktop, show appointment count and preview
+                    //     <MudText Typo="Typo.caption" Color="Color.Primary">
+                    //         @day.Appointments.Count @(day.Appointments.Count == 1 ? "appointment" : "appointments")
+                    //     </MudText>
+                    //     @foreach (var apt in day.Appointments.Take(2))
+                    //     {
+                    //         <MudText Typo="Typo.caption" Class="text-truncate">
+                    //             @apt.DateTime.ToString("h:mm tt") - @apt.CustomerName.Split(' ').FirstOrDefault()
+                    //         </MudText>
+                    //     }
+                    //     @if (day.Appointments.Count > 2)
+                    //     {
+                    //         <MudText Typo="Typo.caption" Color="Color.Secondary">
+                    //             +@(day.Appointments.Count - 2) more
+                    //         </MudText>
+                    //     }
+                    // }
                     else
                     {
-                        // On desktop, show appointment count and preview
-                        <MudText Typo="Typo.caption" Color="Color.Primary">
-                            @day.Appointments.Count @(day.Appointments.Count == 1 ? "appointment" : "appointments")
-                        </MudText>
-                        @foreach (var apt in day.Appointments.Take(2))
-                        {
-                            <MudText Typo="Typo.caption" Class="text-truncate">
-                                @apt.DateTime.ToString("h:mm tt") - @apt.CustomerName.Split(' ').FirstOrDefault()
-                            </MudText>
-                        }
-                        @if (day.Appointments.Count > 2)
-                        {
-                            <MudText Typo="Typo.caption" Color="Color.Secondary">
-                                +@(day.Appointments.Count - 2) more
-                            </MudText>
-                        }
+                        // // On desktop, show appointment count and preview
+                        // <MudText Typo="Typo.caption" Color="Color.Primary">
+                        //     @day.Appointments.Count @(day.Appointments.Count == 1 ? "appointment" : "appointments")
+                        // </MudText>
+
+                        <div style="display: grid;
+                                    grid-template-columns: 1fr;
+                                    gap: 0.2rem 0px;
+                                    object-fit: contain;
+                                    ">
+                            @foreach (var apt in day.Appointments.Take(2))
+                            {
+                                <div style="background-color: var(--mud-palette-primary);
+                                            width: 100%;
+                                            display: flex;
+                                            justify-content: space-between;
+                                            align-items: center;
+                                            overflow: hidden;
+                                            padding-left: 0.2rem;
+                                            padding-right: 0.2rem;
+                                            border-radius: 0.2rem;">
+                                    <MudText Style="flex-shrink 0; padding-right: 0.2rem;" Typo="Typo.caption">
+                                        @apt.DateTime.ToString("htt")
+                                    </MudText>
+                                    <MudText Style="overflow: hidden;
+                                                    text-overflow: ellipsis;
+                                                    white-space: nowrap;" Typo="Typo.caption">
+                                        @apt.CustomerName
+                                    </MudText>
+                                </div>
+                            }
+                            @if (day.Appointments.Count > 2)
+                            {
+                                <MudText Typo="Typo.caption" Color="Color.Secondary">
+                                    +@(day.Appointments.Count - 2) more
+                                </MudText>
+                            }
+                        </div>
+                       
                     }
                 </div>
             }
