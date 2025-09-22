@@ -1,5 +1,10 @@
 ﻿@page "/"
 @attribute [Authorize]
+@using BarberCo.SharedLibrary.Models
+@using BarberCo.SharedLibrary.Services
+@inject IAppointmentService AppointmentService
+@inject ISnackbar Snackbar
+@inject NavigationManager Navigation
 
 <PageTitle>Dashboard - BarberCo Management</PageTitle>
 
@@ -11,27 +16,330 @@
             <MudItem xs="12" sm="6" md="3">
                 <MudPaper Class="pa-4" Elevation="2">
                     <MudText Typo="Typo.h6">Today's Appointments</MudText>
-                    <MudText Typo="Typo.h3" Color="Color.Primary">0</MudText>
+                    <MudText Typo="Typo.h3" Color="Color.Secondary">@_todayAppointmentCount</MudText>
                 </MudPaper>
             </MudItem>
             <MudItem xs="12" sm="6" md="3">
                 <MudPaper Class="pa-4" Elevation="2">
                     <MudText Typo="Typo.h6">This Week</MudText>
-                    <MudText Typo="Typo.h3" Color="Color.Secondary">0</MudText>
+                    <MudText Typo="Typo.h3" Color="Color.Primary">@_weekAppointmentCount</MudText>
                 </MudPaper>
             </MudItem>
             <MudItem xs="12" sm="6" md="3">
                 <MudPaper Class="pa-4" Elevation="2">
-                    <MudText Typo="Typo.h6">Active Services</MudText>
-                    <MudText Typo="Typo.h3" Color="Color.Success">0</MudText>
+                    <MudText Typo="Typo.h6">This Month</MudText>
+                    <MudText Typo="Typo.h3" Color="Color.Primary">@_monthAppointmentCount</MudText>
                 </MudPaper>
             </MudItem>
             <MudItem xs="12" sm="6" md="3">
                 <MudPaper Class="pa-4" Elevation="2">
                     <MudText Typo="Typo.h6">Revenue Today</MudText>
-                    <MudText Typo="Typo.h3" Color="Color.Info">$0</MudText>
+                    <MudText Typo="Typo.h3" Color="Color.Success">@_todayRevenue.ToString("C")</MudText>
                 </MudPaper>
             </MudItem>
         </MudGrid>
+
+        @* Calendar Section *@
+        <MudPaper Class="mt-6 pa-4" Elevation="2">
+            <MudText Typo="Typo.h5" Class="mb-4">
+                @_currentDate.ToString("MMMM yyyy")
+            </MudText>
+            
+            @if (_loading)
+            {
+                <MudProgressCircular Color="Color.Primary" Indeterminate="true" Class="my-8" />
+            }
+            else
+            {
+                @* Desktop Calendar *@
+                <MudHidden Breakpoint="Breakpoint.SmAndDown">
+                    <MudGrid Spacing="1">
+                        @* Day Headers *@
+                        @foreach (var day in _dayNames)
+                        {
+                            <MudItem xs="12" Style="flex: 0 0 14.285714%; max-width: 14.285714%;">
+                                <MudText Typo="Typo.body2" Align="Align.Center" Class="font-weight-bold">
+                                    @day
+                                </MudText>
+                            </MudItem>
+                        }
+                        
+                        @* Calendar Days *@
+                        @foreach (var calendarDay in _calendarDays)
+                        {
+                            <MudItem xs="12" Style="flex: 0 0 14.285714%; max-width: 14.285714%;">
+                                @RenderCalendarDay(calendarDay, false)
+                            </MudItem>
+                        }
+                    </MudGrid>
+                </MudHidden>
+
+                @* Mobile Calendar *@
+                <MudHidden Breakpoint="Breakpoint.MdAndUp">
+                    <MudGrid Spacing="1">
+                        @* Abbreviated Day Headers for Mobile *@
+                        @foreach (var day in _dayNamesShort)
+                        {
+                            <MudItem xs="12" Style="flex: 0 0 14.285714%; max-width: 14.285714%;">
+                                <MudText Typo="Typo.caption" Align="Align.Center" Class="font-weight-bold">
+                                    @day
+                                </MudText>
+                            </MudItem>
+                        }
+                        
+                        @* Calendar Days *@
+                        @foreach (var calendarDay in _calendarDays)
+                        {
+                            <MudItem xs="12" Style="flex: 0 0 14.285714%; max-width: 14.285714%;">
+                                @RenderCalendarDay(calendarDay, true)
+                            </MudItem>
+                        }
+                    </MudGrid>
+                </MudHidden>
+            }
+        </MudPaper>
     </Authorized>
 </AuthorizeView>
+
+@* Day Detail Dialog *@
+<MudDialog @bind-Visible="_dayDialogVisible" Options="@(new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true })">
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            @_selectedDate?.ToString("MMMM d, yyyy")
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        @if (_selectedDayAppointments?.Any() == true)
+        {
+            <MudStack Spacing="2">
+                @foreach (var appointment in _selectedDayAppointments.OrderBy(a => a.DateTime))
+                {
+                    <MudPaper Class="pa-3" Elevation="1" Outlined="true">
+                        <MudText Typo="Typo.subtitle2" Color="Color.Primary">
+                            @appointment.DateTime.ToString("h:mm tt")
+                        </MudText>
+                        <MudText Typo="Typo.body1">
+                            @appointment.CustomerName
+                        </MudText>
+                        <MudText Typo="Typo.body2" Color="Color.Secondary">
+                            @appointment.CustomerPhone
+                        </MudText>
+                        <div class="mt-2">
+                            @foreach (var service in appointment.Services)
+                            {
+                                <MudChip Size="Size.Small" Color="Color.Primary" T="string">
+                                    @service.Name
+                                </MudChip>
+                            }
+                        </div>
+                    </MudPaper>
+                }
+            </MudStack>
+        }
+        else
+        {
+            <MudText Typo="Typo.body1" Align="Align.Center" Class="py-4">
+                No appointments scheduled for this day
+            </MudText>
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="@(() => _dayDialogVisible = false)">Close</MudButton>
+        <MudButton Color="Color.Primary" 
+                   Variant="Variant.Filled" 
+                   OnClick="@(() => Navigation.NavigateTo("/appointments"))">
+            View All Appointments
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+<style>
+    .calendar-day {
+        height: 7rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+    
+    .calendar-day-mobile {
+        height: 4rem;
+        overflow: hidden;
+    }
+    
+    .calendar-day:hover {
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        transform: translateY(-1px);
+    }
+    
+    .calendar-day-other-month {
+        opacity: 0.5;
+    }
+    
+    .calendar-day-today {
+        border: 2px solid var(--mud-palette-primary);
+    }
+    
+    .appointment-indicator {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        display: inline-block;
+        margin: 0 1px;
+    }
+</style>
+
+@code {
+    private DateTime _currentDate = DateTime.Now;
+    private List<Appointment> _appointments = new();
+    private List<CalendarDay> _calendarDays = new();
+    private bool _loading = true;
+    
+    // Statistics
+    private int _todayAppointmentCount = 0;
+    private int _weekAppointmentCount = 0;
+    private int _monthAppointmentCount = 0;
+    private decimal _todayRevenue = 0;
+    
+    // Day dialog
+    private bool _dayDialogVisible = false;
+    private DateTime? _selectedDate;
+    private List<Appointment>? _selectedDayAppointments;
+    
+    private readonly string[] _dayNames = { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
+    private readonly string[] _dayNamesShort = { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
+    
+    private class CalendarDay
+    {
+        public DateTime Date { get; set; }
+        public bool IsCurrentMonth { get; set; }
+        public bool IsToday { get; set; }
+        public List<Appointment> Appointments { get; set; } = new();
+    }
+    
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAppointments();
+        GenerateCalendarDays();
+        CalculateStatistics();
+    }
+    
+    private async Task LoadAppointments()
+    {
+        try
+        {
+            _loading = true;
+            _appointments = await AppointmentService.GetAppointmentsAsync();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error loading appointments: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+    
+    private void GenerateCalendarDays()
+    {
+        _calendarDays.Clear();
+        
+        var firstDayOfMonth = new DateTime(_currentDate.Year, _currentDate.Month, 1);
+        var lastDayOfMonth = firstDayOfMonth.AddMonths(1).AddDays(-1);
+        
+        // Get the first day of the calendar (may be from previous month)
+        var firstCalendarDay = firstDayOfMonth.AddDays(-(int)firstDayOfMonth.DayOfWeek);
+        
+        // Generate 42 days (6 weeks) to ensure complete calendar
+        for (int i = 0; i < 42; i++)
+        {
+            var date = firstCalendarDay.AddDays(i);
+            var calendarDay = new CalendarDay
+            {
+                Date = date,
+                IsCurrentMonth = date.Month == _currentDate.Month,
+                IsToday = date.Date == DateTime.Today,
+                Appointments = _appointments.Where(a => a.DateTime.Date == date.Date).ToList()
+            };
+            
+            _calendarDays.Add(calendarDay);
+        }
+    }
+    
+    private void CalculateStatistics()
+    {
+        var today = DateTime.Today;
+        var weekStart = today.AddDays(-(int)today.DayOfWeek);
+        var weekEnd = weekStart.AddDays(7);
+        var monthStart = new DateTime(today.Year, today.Month, 1);
+        var monthEnd = monthStart.AddMonths(1);
+        
+        _todayAppointmentCount = _appointments.Count(a => a.DateTime.Date == today);
+        _weekAppointmentCount = _appointments.Count(a => a.DateTime >= weekStart && a.DateTime < weekEnd);
+        _monthAppointmentCount = _appointments.Count(a => a.DateTime >= monthStart && a.DateTime < monthEnd);
+        
+        // Calculate today's revenue
+        _todayRevenue = _appointments
+            .Where(a => a.DateTime.Date == today)
+            .SelectMany(a => a.Services)
+            .Sum(s => s.Price);
+    }
+    
+    private void ShowDayDetails(CalendarDay day)
+    {
+        _selectedDate = day.Date;
+        _selectedDayAppointments = day.Appointments;
+        _dayDialogVisible = true;
+    }
+    
+    private RenderFragment RenderCalendarDay(CalendarDay day, bool isMobile) => __builder =>
+    {
+        var cssClass = isMobile ? "calendar-day calendar-day-mobile pa-1" : "calendar-day pa-2";
+        if (!day.IsCurrentMonth) cssClass += " calendar-day-other-month";
+        if (day.IsToday) cssClass += " calendar-day-today";
+
+        <MudPaper Class="@cssClass" Elevation="1" @onclick="@(() => ShowDayDetails(day))">
+            <MudText Typo="@(isMobile? Typo.caption: Typo.body2)"
+                     Color="@(day.IsToday ? Color.Primary : Color.Default)">
+                @day.Date.Day
+            </MudText>
+
+            @if (day.Appointments.Any())
+            {
+                <div>
+                    @if (isMobile)
+                    {
+                        // On mobile, just show dots
+                        @for (int i = 0; i < Math.Min(day.Appointments.Count, 3); i++)
+                        {
+                            <span class="appointment-indicator" style="background-color: var(--mud-palette-primary);"></span>
+                        }
+                        @if (day.Appointments.Count > 3)
+                        {
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">+@(day.Appointments.Count - 3)</MudText>
+                        }
+                    }
+                    else
+                    {
+                        // On desktop, show appointment count and preview
+                        <MudText Typo="Typo.caption" Color="Color.Primary">
+                            @day.Appointments.Count @(day.Appointments.Count == 1 ? "appointment" : "appointments")
+                        </MudText>
+                        @foreach (var apt in day.Appointments.Take(2))
+                        {
+                            <MudText Typo="Typo.caption" Class="text-truncate">
+                                @apt.DateTime.ToString("h:mm tt") - @apt.CustomerName.Split(' ').FirstOrDefault()
+                            </MudText>
+                        }
+                        @if (day.Appointments.Count > 2)
+                        {
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">
+                                +@(day.Appointments.Count - 2) more
+                            </MudText>
+                        }
+                    }
+                </div>
+            }
+        </MudPaper>
+    };
+}

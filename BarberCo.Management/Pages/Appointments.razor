@@ -258,7 +258,7 @@
             _loading = false;
         }
     }
-    
+
     private async Task LoadServices()
     {
         try
@@ -270,7 +270,7 @@
             Snackbar.Add($"Error loading services: {ex.Message}", Severity.Error);
         }
     }
-    
+
     private async Task OnDateChanged()
     {
         if (_selectedDate.HasValue)
@@ -288,7 +288,7 @@
             }
         }
     }
-    
+
     private void OpenAddAppointmentDialog(MouseEventArgs args)
     {
         _isViewMode = false;
@@ -299,26 +299,26 @@
         _availableTimes = new List<(DateTime, string)>();
         _canEditTime = false;
         _dialogVisible = true;
-        
+
         // Load times for today
         InvokeAsync(OnDateChanged);
     }
-    
+
     private void ViewAppointment(Appointment appointment)
     {
         _isViewMode = true;
         _viewingAppointment = appointment;
         _dialogVisible = true;
     }
-    
+
     private async Task SaveAppointment()
     {
         if (!_formIsValid || _saving || !_selectedServices.Any() || !_selectedTime.HasValue) return;
-        
+
         try
         {
             _saving = true;
-            
+
             var dto = new AppointmentUpdateDto
             {
                 CustomerName = _formModel.CustomerName,
@@ -326,12 +326,13 @@
                 DateTime = _selectedTime.Value,
                 ServiceIds = _selectedServices.Where(x => x?.Id != null).Select(x => x.Id).ToList()
             };
-            
+
             var result = await AppointmentService.SubmitAppointmentAsync(dto);
-            
+
             // Reload appointments to show the new one
             await LoadAppointments();
-            
+
+            _selectedServices = [];
             _dialogVisible = false;
             Snackbar.Add("Appointment created successfully", Severity.Success);
         }
