@@ -193,21 +193,21 @@
     private List<Appointment> _appointments = new();
     private List<CalendarDay> _calendarDays = new();
     private bool _loading = true;
-    
+
     // Statistics
     private int _todayAppointmentCount = 0;
     private int _weekAppointmentCount = 0;
     private int _monthAppointmentCount = 0;
     private decimal _todayRevenue = 0;
-    
+
     // Day dialog
     private bool _dayDialogVisible = false;
     private DateTime? _selectedDate;
     private List<Appointment>? _selectedDayAppointments;
-    
+
     private readonly string[] _dayNames = { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
     private readonly string[] _dayNamesShort = { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
-    
+
     private class CalendarDay
     {
         public DateTime Date { get; set; }
@@ -215,14 +215,14 @@
         public bool IsToday { get; set; }
         public List<Appointment> Appointments { get; set; } = new();
     }
-    
+
     protected override async Task OnInitializedAsync()
     {
         await LoadAppointments();
         GenerateCalendarDays();
         CalculateStatistics();
     }
-    
+
     private async Task LoadAppointments()
     {
         try
@@ -239,17 +239,17 @@
             _loading = false;
         }
     }
-    
+
     private void GenerateCalendarDays()
     {
         _calendarDays.Clear();
-        
+
         var firstDayOfMonth = new DateTime(_currentDate.Year, _currentDate.Month, 1);
         var lastDayOfMonth = firstDayOfMonth.AddMonths(1).AddDays(-1);
-        
+
         // Get the first day of the calendar (may be from previous month)
         var firstCalendarDay = firstDayOfMonth.AddDays(-(int)firstDayOfMonth.DayOfWeek);
-        
+
         // Generate 42 days (6 weeks) to ensure complete calendar
         for (int i = 0; i < 42; i++)
         {
@@ -261,11 +261,11 @@
                 IsToday = date.Date == DateTime.Today,
                 Appointments = _appointments.Where(a => a.DateTime.Date == date.Date).ToList()
             };
-            
+
             _calendarDays.Add(calendarDay);
         }
     }
-    
+
     private void CalculateStatistics()
     {
         var today = DateTime.Today;
@@ -273,20 +273,23 @@
         var weekEnd = weekStart.AddDays(7);
         var monthStart = new DateTime(today.Year, today.Month, 1);
         var monthEnd = monthStart.AddMonths(1);
-        
+
         _todayAppointmentCount = _appointments.Count(a => a.DateTime.Date == today);
         _weekAppointmentCount = _appointments.Count(a => a.DateTime >= weekStart && a.DateTime < weekEnd);
         _monthAppointmentCount = _appointments.Count(a => a.DateTime >= monthStart && a.DateTime < monthEnd);
-        
+
         // Calculate today's revenue
         _todayRevenue = _appointments
             .Where(a => a.DateTime.Date == today)
             .SelectMany(a => a.Services)
             .Sum(s => s.Price);
     }
-    
+
     private void ShowDayDetails(CalendarDay day)
     {
+        if (day.Appointments.Any() == false)
+            return;
+
         _selectedDate = day.Date;
         _selectedDayAppointments = day.Appointments;
         _dayDialogVisible = true;
@@ -319,32 +322,8 @@
                             <MudText Typo="Typo.caption" Color="Color.Secondary">+@(day.Appointments.Count - 3)</MudText>
                         }
                     }
-                    // else
-                    // {
-                    //     // On desktop, show appointment count and preview
-                    //     <MudText Typo="Typo.caption" Color="Color.Primary">
-                    //         @day.Appointments.Count @(day.Appointments.Count == 1 ? "appointment" : "appointments")
-                    //     </MudText>
-                    //     @foreach (var apt in day.Appointments.Take(2))
-                    //     {
-                    //         <MudText Typo="Typo.caption" Class="text-truncate">
-                    //             @apt.DateTime.ToString("h:mm tt") - @apt.CustomerName.Split(' ').FirstOrDefault()
-                    //         </MudText>
-                    //     }
-                    //     @if (day.Appointments.Count > 2)
-                    //     {
-                    //         <MudText Typo="Typo.caption" Color="Color.Secondary">
-                    //             +@(day.Appointments.Count - 2) more
-                    //         </MudText>
-                    //     }
-                    // }
                     else
                     {
-                        // // On desktop, show appointment count and preview
-                        // <MudText Typo="Typo.caption" Color="Color.Primary">
-                        //     @day.Appointments.Count @(day.Appointments.Count == 1 ? "appointment" : "appointments")
-                        // </MudText>
-
                         <div style="display: grid;
                                     grid-template-columns: 1fr;
                                     gap: 0.2rem 0px;
