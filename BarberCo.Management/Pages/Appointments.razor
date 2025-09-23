@@ -133,7 +133,7 @@
                                        @bind-Date:after="OnDateChanged"
                                        Required="true"
                                        RequiredError="Date is required"
-                                       MinDate="DateTime.Today"
+                                       MinDate="DateTime.Now"
                                        Variant="Variant.Outlined" />
                     </MudItem>
                     
@@ -226,7 +226,7 @@
     private bool _isViewMode = false;
     private Appointment? _viewingAppointment;
     private AppointmentFormModel _formModel = new();
-    private DateTime? _selectedDate = DateTime.Today;
+    private DateTime? _selectedDate = DateTime.Now;
     private DateTime? _selectedTime;
     private IReadOnlyCollection<Service?> _selectedServices = [];
 
@@ -294,7 +294,7 @@
         _isViewMode = false;
         _viewingAppointment = null;
         _formModel = new AppointmentFormModel();
-        _selectedDate = DateTime.Today;
+        _selectedDate = DateTime.Now;
         _selectedTime = null;
         _availableTimes = new List<(DateTime, string)>();
         _canEditTime = false;
