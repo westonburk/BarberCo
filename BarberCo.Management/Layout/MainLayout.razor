@@ -1,5 +1,6 @@
 ﻿@inherits LayoutComponentBase
 @inject NavigationManager Navigation
+@inject IDialogService DialogService
 @inject IAuthService AuthService
 
 <MudLayout>
@@ -36,7 +37,12 @@
 
     private async Task Logout()
     {
-        await AuthService.LogoutAsync();
-        Navigation.NavigateTo("/login", true);
+        var result = await DialogService.ShowMessageBox(null, "Do you want to Logout?", cancelText:"Cancel", yesText: "Continue");
+
+        if (result == true)
+        {
+            await AuthService.LogoutAsync();
+            Navigation.NavigateTo("/login", true);
+        }
     }
 }
