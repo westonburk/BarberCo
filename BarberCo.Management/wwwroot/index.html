@@ -32,6 +32,50 @@
     <script src="_framework/blazor.webassembly.js"></script>
     <script src="_content/MudBlazor/MudBlazor.min.js"></script>
     <script>navigator.serviceWorker.register('service-worker.js');</script>
+    <script>
+        window.connectivity = {
+            dotNetReference: null,
+
+            initialize: function (dotNetReference) {
+                this.dotNetReference = dotNetReference;
+
+                // Add event listeners for online/offline events
+                window.addEventListener('online', () => {
+                    if (this.dotNetReference) {
+                        this.dotNetReference.invokeMethodAsync('UpdateConnectivityStatus', true);
+                    }
+                });
+
+                window.addEventListener('offline', () => {
+                    if (this.dotNetReference) {
+                        this.dotNetReference.invokeMethodAsync('UpdateConnectivityStatus', false);
+                    }
+                });
+            },
+
+            isOnline: function () {
+                return navigator.onLine;
+            },
+
+            checkConnectivity: async function () {
+                // First check if browser reports online
+                if (!navigator.onLine) {
+                    return false;
+                }
+
+                // Then try to ping a known endpoint
+                try {
+                    const response = await fetch('/index.html', {
+                        method: 'HEAD',
+                        cache: 'no-cache'
+                    });
+                    return response.ok;
+                } catch {
+                    return false;
+                }
+            }
+        };
+    </script>
 </body>
 
 </html>

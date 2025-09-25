@@ -3,5 +3,6 @@
     public static class StorageKeys
     {
         public static readonly string AuthToken = "Auth";
+        public static readonly string Dashboard = "Dashboard";
     }
 }

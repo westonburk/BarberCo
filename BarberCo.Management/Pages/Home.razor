@@ -1,14 +1,17 @@
 ﻿@page "/"
 @attribute [Authorize]
+@using BarberCo.Management.LocalStorage
+@using BarberCo.Management.Services
 @using BarberCo.SharedLibrary.Models
 @using BarberCo.SharedLibrary.Services
+@using Blazored.LocalStorage
 @inject IAppointmentService AppointmentService
 @inject ISnackbar Snackbar
 @inject NavigationManager Navigation
+@inject IConnectivityService ConnectivityService
+@inject ILocalStorageService LocalStorageService
 
 <PageTitle>Dashboard - BarberCo Management</PageTitle>
-
-<MudText Typo="Typo.h4" Class="mb-4">Dashboard</MudText>
 
 <AuthorizeView>
     <Authorized>
@@ -39,8 +42,17 @@
             </MudItem>
         </MudGrid>
 
+        <MudStack Row="true" Justify="Justify.FlexEnd" AlignItems="AlignItems.Center" Spacing="0">
+            <MudText Style="font-size: 0.7rem;" Class="mr-1">Updated:</MudText>
+            <MudText Style="font-size: 0.7rem;" Color="Color.Primary">@GetLastUpdatedText()</MudText>
+            <MudIconButton OnClick="LoadAsync"
+                           Disabled="@(_isOnline == false)"
+                           Icon="@(_isOnline ? Icons.Material.Filled.Refresh : Icons.Material.Filled.SignalWifiOff)">
+            </MudIconButton>
+        </MudStack>
+
         @* Calendar Section *@
-        <MudPaper Class="mt-6 pa-4" Elevation="2">
+        <MudPaper Class="pa-4" Elevation="2">
             <MudText Typo="Typo.h5" Class="mb-4">
                 @_currentDate.ToString("MMMM yyyy")
             </MudText>
@@ -193,6 +205,8 @@
     private List<Appointment> _appointments = new();
     private List<CalendarDay> _calendarDays = new();
     private bool _loading = true;
+    private bool _isOnline = true;
+    private DashboardCache _dashboardCache;
 
     // Statistics
     private int _todayAppointmentCount = 0;
@@ -218,6 +232,20 @@
 
     protected override async Task OnInitializedAsync()
     {
+        await ConnectivityService.InitializeAsync();
+        _isOnline = ConnectivityService.IsOnline;
+        ConnectivityService.ConnectivityChanged += OnConnectivityChanged;
+        await LoadAsync();
+    }
+
+    private void OnConnectivityChanged(bool isOnline)
+    {
+        _isOnline = isOnline;
+        InvokeAsync(StateHasChanged);
+    }
+
+    private async Task LoadAsync()
+    {
         await LoadAppointments();
         GenerateCalendarDays();
         CalculateStatistics();
@@ -228,7 +256,22 @@
         try
         {
             _loading = true;
-            _appointments = await AppointmentService.GetAppointmentsAsync();
+
+            if (_isOnline)
+            {
+                _appointments = await AppointmentService.GetAppointmentsAsync();
+                _dashboardCache = new DashboardCache
+                {
+                    Appointments = _appointments,
+                    Date = DateTime.Now
+                };
+                await LocalStorageService.SetItemAsync(StorageKeys.Dashboard, _dashboardCache);
+            }
+            else
+            {
+                _dashboardCache = await LocalStorageService.GetItemAsync<DashboardCache>(StorageKeys.Dashboard);
+                _appointments = _dashboardCache?.Appointments;        
+            }
         }
         catch (Exception ex)
         {
@@ -238,6 +281,22 @@
         {
             _loading = false;
         }
+    }
+
+    private string GetLastUpdatedText()
+    {
+        string result = string.Empty;
+
+        if (_dashboardCache?.Date.Date == DateTime.Now.Date)
+        {
+            result = $"Today {_dashboardCache.Date:t}";
+        }
+        else if (_dashboardCache is not null)
+        {
+            result = _dashboardCache.Date.ToString("g");
+        }
+
+        return result;
     }
 
     private void GenerateCalendarDays()

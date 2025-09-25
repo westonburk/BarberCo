@@ -1,5 +1,6 @@
 using BarberCo.Management;
 using BarberCo.Management.Auth;
+using BarberCo.Management.Services;
 using BarberCo.SharedLibrary.Services;
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -33,6 +34,7 @@ builder.Services.AddHttpClient("BarberCoAPI", client =>
 })
 .AddHttpMessageHandler<AuthorizationMessageHandler>();
 
+builder.Services.AddScoped<IConnectivityService, ConnectivityService>();
 builder.Services.AddScoped<AuthorizationMessageHandler>();
 builder.Services.AddScoped<IBarberCoApiService, BarberCoApiService>();
 builder.Services.AddScoped<IHourService, HourService>();
