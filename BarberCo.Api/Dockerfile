@@ -18,7 +18,7 @@ FROM build AS publish
 RUN dotnet publish "BarberCo.Api.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 # Runtime stage
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS final
 WORKDIR /app
 
 # Only expose port 80 - Azure Container Apps handles HTTPS

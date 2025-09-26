@@ -11,7 +11,9 @@
     <link rel="stylesheet" href="css/app.css" />
     <link href="BarberCo.Management.styles.css" rel="stylesheet" />
     <link href="manifest.webmanifest" rel="manifest" />
-    <link rel="icon" type="image/x-icon" href="favicon.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="192_Icon.png" />
+    <link rel="icon" type="image/png" sizes="512x512" href="512_Icon.png" />
+    <link rel="apple-touch-icon" href="192_Icon.png" />
 </head>
 
 <body>
@@ -30,7 +32,7 @@
     </div>
     <script src="_framework/blazor.webassembly.js"></script>
     <script src="_content/MudBlazor/MudBlazor.min.js"></script>
-    <script>navigator.serviceWorker.register('service-worker.js');</script>
+    <script>navigator.serviceWorker.register('service-worker.published.js');</script>
     <script>
         window.connectivity = {
             dotNetReference: null,
