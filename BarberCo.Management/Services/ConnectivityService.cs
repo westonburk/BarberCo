@@ -6,9 +6,8 @@ namespace BarberCo.Management.Services
     {
         private readonly IJSRuntime _jsRuntime;
         private DotNetObjectReference<ConnectivityService>? _dotNetReference;
-        private bool _isOnline = true;
 
-        public bool IsOnline => _isOnline;
+        public bool IsOnline { get; private set; } = true;
         public event Action<bool>? ConnectivityChanged;
 
         public ConnectivityService(IJSRuntime jsRuntime)
@@ -18,36 +17,16 @@ namespace BarberCo.Management.Services
 
         public async Task InitializeAsync()
         {
-            // Create a reference to this instance for JavaScript callbacks
             _dotNetReference = DotNetObjectReference.Create(this);
-
-            // Initialize JavaScript connectivity monitoring
-            await _jsRuntime.InvokeVoidAsync("connectivity.initialize", _dotNetReference);
-
-            // Get initial connectivity status
-            _isOnline = await _jsRuntime.InvokeAsync<bool>("connectivity.isOnline");
+            await _jsRuntime.InvokeVoidAsync("network.initialize", _dotNetReference);
         }
 
-        public async Task<bool> CheckConnectivityAsync()
+        [JSInvokable("Network.StatusChanged")]
+        public void OnStatusChanged(bool isOnline)
         {
-            try
+            if (IsOnline != isOnline)
             {
-                _isOnline = await _jsRuntime.InvokeAsync<bool>("connectivity.checkConnectivity");
-                return _isOnline;
-            }
-            catch
-            {
-                _isOnline = false;
-                return false;
-            }
-        }
-
-        [JSInvokable]
-        public void UpdateConnectivityStatus(bool isOnline)
-        {
-            if (_isOnline != isOnline)
-            {
-                _isOnline = isOnline;
+                IsOnline = isOnline;
                 ConnectivityChanged?.Invoke(isOnline);
             }
         }
