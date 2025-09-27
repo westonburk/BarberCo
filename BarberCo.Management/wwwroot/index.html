@@ -32,24 +32,7 @@
     </div>
     <script src="_framework/blazor.webassembly.js"></script>
     <script src="_content/MudBlazor/MudBlazor.min.js"></script>
-    <script>navigator.serviceWorker.register('service-worker.js');</script>
-    <script>
-        window.network = {
-            initialize: function (interop) {
-                function handler() {
-                    interop.invokeMethodAsync("Network.StatusChanged", navigator.onLine);
-                }
-
-                window.addEventListener('online', handler);
-                window.addEventListener('offline', handler);
-
-                // Check initial state
-                if (!navigator.onLine) {
-                    handler();
-                }
-            }
-        }; 
-    </script>
+    <script>navigator.serviceWorker.register('service-worker.js', { updateViaCache: 'none' });</script>
 </body>
 
 </html>

@@ -1,14 +1,12 @@
 ﻿@page "/"
 @attribute [Authorize]
 @using BarberCo.Management.LocalStorage
-@using BarberCo.Management.Services
 @using BarberCo.SharedLibrary.Models
 @using BarberCo.SharedLibrary.Services
 @using Blazored.LocalStorage
 @inject IAppointmentService AppointmentService
 @inject ISnackbar Snackbar
 @inject NavigationManager Navigation
-@inject IConnectivityService ConnectivityService
 @inject ILocalStorageService LocalStorageService
 
 <PageTitle>Dashboard - BarberCo Management</PageTitle>
@@ -45,9 +43,7 @@
         <MudStack Row="true" Justify="Justify.FlexEnd" AlignItems="AlignItems.Center" Spacing="0">
             <MudText Style="font-size: 0.7rem;" Class="mr-1">Updated:</MudText>
             <MudText Style="font-size: 0.7rem;" Color="Color.Primary">@GetLastUpdatedText()</MudText>
-            <MudIconButton OnClick="LoadAsync"
-                           Disabled="@(_isOnline == false)"
-                           Icon="@(_isOnline ? Icons.Material.Filled.Refresh : Icons.Material.Filled.SignalWifiOff)">
+            <MudIconButton OnClick="LoadAsync" Icon="@Icons.Material.Filled.Refresh">
             </MudIconButton>
         </MudStack>
 
@@ -205,7 +201,6 @@
     private List<Appointment> _appointments = new();
     private List<CalendarDay> _calendarDays = new();
     private bool _loading = true;
-    private bool _isOnline = true;
     private DashboardCache _dashboardCache;
 
     // Statistics
@@ -232,18 +227,8 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await ConnectivityService.InitializeAsync();
-        _isOnline = ConnectivityService.IsOnline;
-        ConnectivityService.ConnectivityChanged += OnConnectivityChanged;
         await LoadAsync();
     }
-
-    private void OnConnectivityChanged(bool isOnline)
-    {
-        _isOnline = isOnline;
-        InvokeAsync(StateHasChanged);
-    }
-
     private async Task LoadAsync()
     {
         await LoadAppointments();
@@ -257,7 +242,7 @@
         {
             _loading = true;
 
-            if (_isOnline)
+            try
             {
                 _appointments = await AppointmentService.GetAppointmentsAsync();
                 _dashboardCache = new DashboardCache
@@ -267,10 +252,19 @@
                 };
                 await LocalStorageService.SetItemAsync(StorageKeys.Dashboard, _dashboardCache);
             }
-            else
+            catch (Exception ex) when(ex is HttpRequestException || ex is TaskCanceledException)
             {
                 _dashboardCache = await LocalStorageService.GetItemAsync<DashboardCache>(StorageKeys.Dashboard);
-                _appointments = _dashboardCache?.Appointments;        
+                _appointments = _dashboardCache?.Appointments;
+
+                if (_appointments != null)
+                {
+                    Snackbar.Add($"Showing data from {_dashboardCache.Date:G}", Severity.Info, configure: x => x.RequireInteraction = true);
+                }
+                else
+                {
+                    throw;    
+                }
             }
         }
         catch (Exception ex)
@@ -280,6 +274,19 @@
         finally
         {
             _loading = false;
+        }
+    }
+
+    private async Task<List<Appointment>?> TryGetAppointmentsAsync()
+    {
+        try
+        {
+            return await AppointmentService.GetAppointmentsAsync();
+        }
+        catch (HttpRequestException ex)
+        {
+
+            return null;
         }
     }
 
