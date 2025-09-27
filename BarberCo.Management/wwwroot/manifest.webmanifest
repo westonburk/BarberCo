@@ -1,8 +1,8 @@
 {
-  "name": "BarberCo.Management",
-  "short_name": "BarberCo.Management",
-  "id": "./",
-  "start_url": "./",
+  "name": "BarberCo",
+  "short_name": "BarberCo",
+  "id": "/",
+  "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#03173d",
