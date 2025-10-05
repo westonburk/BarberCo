@@ -73,43 +73,6 @@ RESTful API serving both frontend applications
 - **Authentication**: JWT & ApiKey
 - **UI Library**: MudBlazor (Management Portal)
 
-## Getting Started
-
-### Prerequisites
-- .NET 8.0 SDK or later
-- SQL Server (local or Azure)
-- Visual Studio 2022 or VS Code
-
-### Local Development
-
-1. Clone the repository
-```bash
-git clone https://github.com/westonburk/BarberCo.git
-cd BarberCo
-```
-
-2. Update connection strings in `appsettings.json` for the API project
-
-3. Run database migrations
-```bash
-cd BarberCo.Api
-dotnet ef database update
-```
-
-4. Start the API
-```bash
-dotnet run
-```
-
-5. Start the web applications (in separate terminals)
-```bash
-cd ../BarberCo.Web
-dotnet run
-
-cd ../BarberCo.Management
-dotnet run
-```
-
 ## Author
 
 **Weston Burkholder**
