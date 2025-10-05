@@ -81,7 +81,7 @@ namespace BarberCo.Api.Controllers
         }
 
         [HttpPut("{id}")]
-        [Authorize(AuthenticationSchemes = "Bearer", Roles = "admin")]
+        [Authorize(AuthenticationSchemes = "Bearer")]
         public async Task<ActionResult<BarberDto>> PutBarber(string id, [FromBody] BarberDto dto)
         {
             try

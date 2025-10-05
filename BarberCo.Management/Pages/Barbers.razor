@@ -143,7 +143,7 @@
                         InputType="InputType.Telephone"
                         Variant="Variant.Outlined"
                         Immediate="true"
-                        Mask="@(new PatternMask("(000) 000-0000"))" />
+                        Mask="@(new PatternMask("(000) 000-0000") { CleanDelimiters = false })" />
                 </MudItem>
                 
                 @if (!_isEditMode)
