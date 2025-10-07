@@ -9,6 +9,32 @@ BarberCo is a complete barber shop management system consisting of three main co
 - **BarberCo.Management** - Administrative portal for barbers to manage appointments
 - **BarberCo.Api** - RESTful API providing data for both frontend applications
 
+## 🛠️ Tech Stack
+
+### Backend
+- **Framework**: .NET 8 Web API
+- **ORM**: Entity Framework Core with Code-First Migrations
+- **Database**: Azure SQL Database (SQL Server LocalDB for development)
+- **Authentication**: Dual auth system - JWT Bearer tokens & API Key authentication
+- **Identity**: ASP.NET Core Identity with role-based authorization
+
+### Frontend
+- **Customer Portal**: Blazor Server with interactive components
+- **Admin Portal**: Blazor WebAssembly (WASM) with offline capabilities
+- **UI Framework**: MudBlazor component library (Admin), Pure CSS (Customer)
+- **State Management**: Local storage caching for offline support
+
+### Cloud & DevOps
+- **Hosting**: Azure Container Apps (fully containerized with Docker)
+- **Architecture**: Clean architecture with repository pattern
+- **Cross-Platform**: Multi-project solution with shared libraries
+
+### Development Practices
+- **API Design**: RESTful API with proper HTTP status codes
+- **Security**: CORS configuration, secure token handling
+- **Code Organization**: Separation of concerns across projects
+- **Dependency Injection**: Built-in .NET DI container
+
 ## Live Demo
 
 - 🌐 **Customer Website**: [https://barberco-web.salmonsmoke-ad46fcca.eastus.azurecontainerapps.io/](https://barberco-web.salmonsmoke-ad46fcca.eastus.azurecontainerapps.io/)
@@ -63,15 +89,6 @@ RESTful API serving both frontend applications
 - Hosted on Azure Container Apps
 
 ![BarberCo API Screenshot](images/barberco-api.png)
-
-## Technologies Used
-
-- **Backend**: .NET Core, Entity Framework Core
-- **Frontend**: Blazor (Server & WebAssembly)
-- **Database**: Azure SQL
-- **Cloud**: Azure Container Apps
-- **Authentication**: JWT & ApiKey
-- **UI Library**: MudBlazor (Management Portal)
 
 ## Author
 
