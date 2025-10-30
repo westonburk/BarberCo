@@ -365,3 +365,6 @@ FodyWeavers.xsd
 /BarberCo.Api/appsettings.Development.json
 /BarberCo.Web/appsettings.Development.json
 /BarberCo.Web/appsettings.json
+/docker-compose.yml
+/commands.ps1
+/.env
