@@ -21,13 +21,19 @@ RUN dotnet publish "BarberCo.Api.csproj" -c Release -o /app/publish /p:UseAppHos
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS final
 WORKDIR /app
 
-# Only expose port 80 - Azure Container Apps handles HTTPS
+# Create non-root user
+RUN useradd -m -s /usr/sbin/nologin appuser
+# Copy published output and fix ownership
+COPY --from=publish /app/publish .
+RUN chown -R appuser:appuser /app
+
+# App listens on 80; Nginx will reverse-proxy to the host's 8080->container:80
 EXPOSE 80
 
-# Copy published output
-COPY --from=publish /app/publish .
+# Enable forwarded headers so app knows it's behind a proxy (scheme/host)
+ENV ASPNETCORE_URLS=http://+:80 \
+    ASPNETCORE_FORWARDEDHEADERS_ENABLED=true
 
-# Set the app to listen on port 80
-ENV ASPNETCORE_URLS=http://+:80
+USER appuser
 
 ENTRYPOINT ["dotnet", "BarberCo.Api.dll"]

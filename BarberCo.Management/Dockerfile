@@ -10,27 +10,27 @@ RUN dotnet restore "BarberCo.Management/BarberCo.Management.csproj"
 # Copy everything and build
 COPY . .
 WORKDIR "/src/BarberCo.Management"
-RUN dotnet build "BarberCo.Management.csproj" -c Release -o /app/build
-
-# Publish stage
-FROM build AS publish
 RUN dotnet publish "BarberCo.Management.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
-# Runtime stage - Use nginx to serve the Blazor WebAssembly app
-FROM nginx:alpine AS final
+# Runtime stage - Nginx serves the static WASM
+FROM nginx:1.25-alpine AS final
 WORKDIR /usr/share/nginx/html
 
-# Remove default nginx static assets
+# Clean default site
 RUN rm -rf ./*
 
-# Copy the published Blazor WebAssembly files
-COPY --from=publish /app/publish/wwwroot .
+# Copy published static files
+COPY --from=build /app/publish/wwwroot .
 
-# Copy nginx configuration
+# Nginx config (should handle caching, compression, SPA fallback)
 COPY BarberCo.Management/nginx.conf /etc/nginx/nginx.conf
 
-# Expose port 80
+# Permissions (nginx user exists in this image)
+RUN chown -R nginx:nginx /usr/share/nginx/html
+
 EXPOSE 80
 
-# Start nginx
+# Optional healthcheck
+HEALTHCHECK --interval=30s --timeout=3s CMD wget -qO- http://127.0.0.1/ || exit 1
+
 CMD ["nginx", "-g", "daemon off;"]

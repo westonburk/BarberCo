@@ -1,5 +1,5 @@
 # Build stage
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
 
 # Copy csproj files and restore dependencies
@@ -17,16 +17,23 @@ FROM build AS publish
 RUN dotnet publish "BarberCo.Web.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 # Runtime stage
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS final
 WORKDIR /app
 
-# Only expose port 80 - Azure Container Apps handles HTTPS
+# Create non-root user
+RUN useradd -m -s /usr/sbin/nologin appuser
+
+# Copy published output and fix ownership
+COPY --from=publish /app/publish .
+RUN chown -R appuser:appuser /app
+
+# Listen on 80; Nginx will proxy 8081->80 on host
 EXPOSE 80
 
-# Copy published output
-COPY --from=publish /app/publish .
+# Respect X-Forwarded-* from Nginx (scheme/host), important for redirects and links
+ENV ASPNETCORE_URLS=http://+:80 \
+    ASPNETCORE_FORWARDEDHEADERS_ENABLED=true
 
-# Set the app to listen on port 80
-ENV ASPNETCORE_URLS=http://+:80
+USER appuser
 
 ENTRYPOINT ["dotnet", "BarberCo.Web.dll"]
