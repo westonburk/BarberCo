@@ -69,7 +69,8 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddDbContext<DataContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("Default"))
+                                           .UseSnakeCaseNamingConvention());
 
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 

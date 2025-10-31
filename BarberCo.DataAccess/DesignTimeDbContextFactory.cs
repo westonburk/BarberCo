@@ -21,7 +21,7 @@ namespace BarberCo.DataAccess
 
             var builder = new DbContextOptionsBuilder<DataContext>();
             var connectionString = configuration.GetConnectionString("Default");
-            builder.UseNpgsql(connectionString);
+            builder.UseNpgsql(connectionString).UseSnakeCaseNamingConvention();
 
             return new DataContext(builder.Options);
         }
