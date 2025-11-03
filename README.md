@@ -14,7 +14,7 @@ BarberCo is a complete barber shop management system consisting of three main co
 ### Backend
 - **Framework**: .NET 8 Web API
 - **ORM**: Entity Framework Core with Code-First Migrations
-- **Database**: Azure SQL Database (SQL Server LocalDB for development)
+- **Database**: PostgreSQL Database
 - **Authentication**: Dual auth system - JWT Bearer tokens & API Key authentication
 - **Identity**: ASP.NET Core Identity with role-based authorization
 
@@ -25,7 +25,7 @@ BarberCo is a complete barber shop management system consisting of three main co
 - **State Management**: Local storage caching for offline support
 
 ### Cloud & DevOps
-- **Hosting**: Azure Container Apps (fully containerized with Docker)
+- **Hosting**: Linux Cloud Server (fully containerized with Docker)
 - **Architecture**: Clean architecture with repository pattern
 - **Cross-Platform**: Multi-project solution with shared libraries
 
@@ -37,8 +37,8 @@ BarberCo is a complete barber shop management system consisting of three main co
 
 ## Live Demo
 
-- 🌐 **Customer Website**: [https://barberco-web.salmonsmoke-ad46fcca.eastus.azurecontainerapps.io/](https://barberco-web.salmonsmoke-ad46fcca.eastus.azurecontainerapps.io/)
-- 👨‍💼 **Management Portal**: [https://barberco-management.salmonsmoke-ad46fcca.eastus.azurecontainerapps.io/](https://barberco-management.salmonsmoke-ad46fcca.eastus.azurecontainerapps.io/)
+- 🌐 **Customer Website**: [https://web.barberco.westonburkholder.com/](https://web.barberco.westonburkholder.com/)
+- 👨‍💼 **Management Portal**: [https://management.barberco.westonburkholder.com/](https://management.barberco.westonburkholder.com/)
 
 ### Test Credentials for Management Portal
 
@@ -59,7 +59,6 @@ Customer-facing website where customers can:
 - Blazor Server
 - Pure HTML/CSS (no UI libraries)
 - ApiKey Authentication with BarberCo.Api
-- Hosted on Azure Container Apps
 
 ![BarberCo Web Screenshot](images/barberco-web.png)
 
@@ -73,7 +72,6 @@ Administrative portal for barbers featuring:
 - Blazor WebAssembly (WASM)
 - MudBlazor UI component library
 - JWT Authentication with BarberCo.Api
-- Hosted on Azure Container Apps
 
 ![BarberCo Management Screenshot](images/barberco-management.png)
 
@@ -84,9 +82,8 @@ RESTful API serving both frontend applications
 - .NET Core Web API
 - Entity Framework Core (ORM)
 - Entity Framework Core Identity for Authentication
-- Azure SQL Database
+- PostgreSQL Database
 - Dual authentication schemes (JWT & ApiKey)
-- Hosted on Azure Container Apps
 
 ![BarberCo API Screenshot](images/barberco-api.png)
 
