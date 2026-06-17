@@ -16,6 +16,7 @@ export default async function AppointmentPage() {
             fill
             className="object-cover"
             priority
+            sizes="(max-width: 768px) 100vw, 50vw"
           />
           <div className="image-vignette pointer-events-none absolute inset-0" />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent md:bg-gradient-to-r md:from-transparent md:via-background/30 md:to-background" />

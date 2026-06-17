@@ -1,4 +1,5 @@
 import { apiFetch, isApiConfigured } from "./api-client";
+import { logApiFallback } from "./log-api-fallback";
 import { normalizeHour } from "./normalize-hour";
 import type { Hour } from "./types";
 
@@ -36,7 +37,7 @@ export async function getHours(): Promise<Hour[]> {
       const hours = await apiFetch<Hour[]>("hour");
       return sortHours(hours.map(normalizeHour));
     } catch (error) {
-      console.error("Failed to fetch hours from API, using placeholders:", error);
+      logApiFallback("hours", error);
     }
   }
 

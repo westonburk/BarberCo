@@ -15,6 +15,7 @@ export default function Home() {
           fill
           className="object-cover"
           priority
+          sizes="100vw"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-background/40" />
         <div className="relative z-10 px-6 text-center">
@@ -63,6 +64,7 @@ export default function Home() {
               alt="A precise beard trim in a classic barbershop"
               fill
               className="object-cover object-[center_25%]"
+              sizes="(max-width: 768px) 100vw, 576px"
             />
             <div className="image-vignette pointer-events-none absolute inset-0" />
           </div>

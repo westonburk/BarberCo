@@ -1,4 +1,5 @@
 import { apiFetch, isApiConfigured } from "./api-client";
+import { logApiFallback } from "./log-api-fallback";
 import type { Service } from "./types";
 
 const PLACEHOLDER_SERVICES: Service[] = [
@@ -18,7 +19,7 @@ export async function getServices(): Promise<Service[]> {
     try {
       return await apiFetch<Service[]>("service");
     } catch (error) {
-      console.error("Failed to fetch services from API, using placeholders:", error);
+      logApiFallback("services", error);
     }
   }
 

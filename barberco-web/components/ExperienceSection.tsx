@@ -10,6 +10,7 @@ export function ExperienceSection() {
             alt="Premium grooming products and barber tools arranged on a wooden surface"
             fill
             className="object-cover"
+            sizes="(max-width: 768px) 100vw, 576px"
           />
           <div className="image-vignette pointer-events-none absolute inset-0" />
         </div>
