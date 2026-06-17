@@ -1,5 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
+import { ExperienceSection } from "@/components/ExperienceSection";
+import { GallerySection } from "@/components/GallerySection";
+import { HoursLocationSection } from "@/components/HoursLocationSection";
+import { ServicesSection } from "@/components/ServicesSection";
 
 export default function Home() {
   return (
@@ -45,7 +49,7 @@ export default function Home() {
               Mike&apos;s has been a neighborhood institution for over fifty
               years — timeless cuts, hot towel shaves, and the kind of
               conversation you can&apos;t rush. Founded by master barber Mike
-              Brenman, the shop pairs old-world technique with an atmosphere
+              Chapman, the shop pairs old-world technique with an atmosphere
               that feels deliberate, unhurried, and entirely its own.
             </p>
             <p className="mt-4 leading-relaxed text-muted">
@@ -64,6 +68,14 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <ServicesSection />
+
+      <ExperienceSection />
+
+      <GallerySection />
+
+      <HoursLocationSection />
     </main>
   );
 }

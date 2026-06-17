@@ -1,0 +1,55 @@
+import Image from "next/image";
+
+export function ExperienceSection() {
+  return (
+    <section className="px-6 py-24 md:py-32">
+      <div className="mx-auto grid max-w-6xl items-center gap-12 md:grid-cols-2 md:gap-16">
+        <div className="relative aspect-[4/5] md:order-1">
+          <Image
+            src="/images/craft.jpg"
+            alt="Premium grooming products and barber tools arranged on a wooden surface"
+            fill
+            className="object-cover"
+          />
+          <div className="image-vignette pointer-events-none absolute inset-0" />
+        </div>
+
+        <div className="md:order-2">
+          <p className="mb-4 text-sm uppercase tracking-[0.3em] text-accent">
+            The Experience
+          </p>
+          <h2 className="font-serif text-4xl tracking-wide md:text-5xl">
+            Ritual, Not Routine
+          </h2>
+          <p className="mt-6 leading-relaxed text-muted">
+            From the moment you settle into the chair, the pace slows. A hot
+            towel. A straight razor drawn with care. Products chosen for quality,
+            not convenience.
+          </p>
+          <p className="mt-4 leading-relaxed text-muted">
+            Mike&apos;s is built on the details most shops rush past — the
+            neckline, the blend, the finish. It&apos;s grooming the way it was
+            meant to be done: with patience, precision, and a little conversation.
+          </p>
+
+          <ul className="mt-8 space-y-3 border-t border-foreground/10 pt-8">
+            {[
+              "Hot towel treatment",
+              "Straight-razor finish",
+              "Premium grooming products",
+              "Complimentary beverage",
+            ].map((item) => (
+              <li
+                key={item}
+                className="flex items-center gap-3 text-sm tracking-wide text-foreground/90"
+              >
+                <span className="h-px w-6 bg-accent" aria-hidden="true" />
+                {item}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </section>
+  );
+}
