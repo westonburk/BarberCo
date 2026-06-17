@@ -109,14 +109,14 @@ export function GallerySection() {
         </header>
 
         <div
-          className="relative w-full"
+          className="relative -mx-6 md:mx-0"
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
           aria-roledescription="carousel"
           aria-label="Barbershop photo gallery"
         >
           <div
-            className="relative aspect-[4/5] w-full overflow-hidden md:aspect-[16/10]"
+            className="gallery-frame relative isolate aspect-[4/5] w-full overflow-hidden md:aspect-[16/10]"
             onMouseEnter={() => {
               isHoveredRef.current = true;
             }}
@@ -130,10 +130,10 @@ export function GallerySection() {
               return (
                 <div
                   key={image.src}
-                  className={`absolute inset-0 transition-all duration-[1400ms] ease-in-out ${
+                  className={`absolute inset-0 transition-opacity duration-[1400ms] ease-in-out md:transition-all ${
                     isActive
-                      ? "scale-100 opacity-100"
-                      : "pointer-events-none scale-[1.03] opacity-0"
+                      ? "opacity-100 md:scale-100"
+                      : "pointer-events-none opacity-0 md:scale-[1.03]"
                   }`}
                   aria-hidden={!isActive}
                 >
@@ -143,17 +143,17 @@ export function GallerySection() {
                     fill
                     className="object-cover"
                     priority={index === 0}
-                    sizes="(max-width: 1152px) 100vw, 1152px"
+                    sizes="100vw"
                   />
+                  <div className="image-vignette pointer-events-none absolute inset-0" />
                 </div>
               );
             })}
-            <div className="image-vignette pointer-events-none absolute inset-0" />
           </div>
 
           <div
             ref={thumbnailStripRef}
-            className="scrollbar-none mt-8 flex justify-start gap-2 overflow-x-auto pb-2 md:justify-center md:gap-3"
+            className="scrollbar-none mx-6 mt-8 flex justify-start gap-2 overflow-x-auto pb-2 md:mx-0 md:justify-center md:gap-3"
           >
             {GALLERY_IMAGES.map((image, index) => (
               <button
