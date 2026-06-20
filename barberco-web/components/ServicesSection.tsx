@@ -6,9 +6,9 @@ export async function ServicesSection() {
   const services = await getServices();
 
   return (
-    <section className="px-6 py-24 md:py-32">
+    <section className="px-6 pt-6 pb-12 md:pt-8 md:pb-16">
       <div className="mx-auto max-w-3xl">
-        <header className="mb-16 text-center">
+        <header className="mb-10 text-center">
           <p className="mb-4 text-sm uppercase tracking-[0.3em] text-accent">
             Services
           </p>

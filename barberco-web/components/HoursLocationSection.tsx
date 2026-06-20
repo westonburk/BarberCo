@@ -14,7 +14,7 @@ export async function HoursLocationSection() {
   const hours = await getHours();
 
   return (
-    <section className="px-6 py-24 md:py-32">
+    <section className="px-6 py-12 md:py-16">
       <div className="mx-auto grid max-w-6xl gap-16 md:grid-cols-2">
         <div>
           <p className="mb-4 text-sm uppercase tracking-[0.3em] text-accent">

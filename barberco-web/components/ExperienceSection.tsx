@@ -2,7 +2,7 @@ import Image from "next/image";
 
 export function ExperienceSection() {
   return (
-    <section className="px-6 py-24 md:py-32">
+    <section className="px-6 py-12 md:py-16">
       <div className="mx-auto grid max-w-6xl items-center gap-12 md:grid-cols-2 md:gap-16">
         <div className="relative aspect-[4/5] md:order-1">
           <Image

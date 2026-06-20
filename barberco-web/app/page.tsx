@@ -37,7 +37,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="relative -mt-32 px-6 pb-24 pt-8 md:pb-32 md:pt-12">
+      <section className="relative -mt-28 px-6 pb-28 pt-10 md:pb-36 md:pt-14">
         <div className="mx-auto grid max-w-6xl items-center gap-12 md:grid-cols-2 md:gap-16">
           <div>
             <p className="mb-4 text-sm uppercase tracking-[0.3em] text-accent">

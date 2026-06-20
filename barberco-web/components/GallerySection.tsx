@@ -93,9 +93,9 @@ export function GallerySection() {
   }
 
   return (
-    <section className="px-6 py-24 md:py-32">
+    <section className="px-6 py-12 md:py-16">
       <div className="mx-auto max-w-6xl">
-        <header className="mb-10 text-center md:mb-16">
+        <header className="mb-8 text-center md:mb-10">
           <p className="mb-4 text-sm uppercase tracking-[0.3em] text-accent">
             Gallery
           </p>
