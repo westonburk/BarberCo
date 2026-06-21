@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" role="img" aria-label="Mike's Barber Shop">
+  <rect width="64" height="64" rx="12" fill="#141210" />
+  <g transform="translate(32 32) scale(0.52) translate(-82 -38)">
+    <path
+      fill="#c9a962"
+      d="M48 62V14h6.5l27.5 42L109.5 14H116v48h-6V24.5L81.5 58 54 24.5V62H48z"
+    />
+    <path
+      fill="#c9a962"
+      opacity="0.85"
+      d="M44 14h10v3H44v-3zm62 0h10v3h-10v-3zM44 62h10v3H44v-3zm62 0h10v3h-10v-3z"
+    />
+  </g>
+</svg>

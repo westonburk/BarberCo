@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 72 72" fill="none" role="img" aria-label="Mike's Barber Shop">
+  <path
+    fill="#c9a962"
+    d="M4 62V14h6.5l27.5 42L68.5 14H75v48h-6V24.5L40.5 58 13 24.5V62H4z"
+  />
+  <path
+    fill="#c9a962"
+    opacity="0.85"
+    d="M0 14h10v3H0v-3zm62 0h10v3h-10v-3zM0 62h10v3H0v-3zm62 0h10v3h-10v-3z"
+  />
+</svg>
