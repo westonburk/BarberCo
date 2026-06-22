@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { AppointmentForm } from "@/components/AppointmentForm";
+import { OrnamentedHeading } from "@/components/OrnamentedHeading";
 import { getServices } from "@/lib/get-services";
 
 export default async function AppointmentPage() {
@@ -23,13 +24,10 @@ export default async function AppointmentPage() {
         </div>
 
         <div className="flex flex-col justify-center px-6 py-16 md:px-12 md:py-24">
-          <p className="mb-4 text-sm uppercase tracking-[0.3em] text-accent">
-            Book
-          </p>
-          <h1 className="font-serif text-4xl tracking-wide md:text-5xl">
-            Reserve Your Chair
-          </h1>
-          <p className="mt-4 max-w-md text-muted">
+          <OrnamentedHeading as="h1" className="!mb-4">
+            Book an Appointment
+          </OrnamentedHeading>
+          <p className="mb-8 max-w-md text-muted">
             Choose your services, pick a time, and we&apos;ll see you in the
             chair.
           </p>

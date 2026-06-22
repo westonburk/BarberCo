@@ -1,3 +1,4 @@
+import { OrnamentedHeading } from "@/components/OrnamentedHeading";
 import { formatHour } from "@/lib/format-hour";
 import { getHours } from "@/lib/get-hours";
 
@@ -17,12 +18,7 @@ export async function HoursLocationSection() {
     <section className="px-6 py-12 md:py-16">
       <div className="mx-auto grid max-w-6xl gap-16 md:grid-cols-2">
         <div>
-          <p className="mb-4 text-sm uppercase tracking-[0.3em] text-accent">
-            Visit
-          </p>
-          <h2 className="font-serif text-4xl tracking-wide md:text-5xl">
-            Hours & Location
-          </h2>
+          <OrnamentedHeading>Hours & Location</OrnamentedHeading>
 
           <ul className="mt-8 space-y-3">
             {hours.map((hour) => (

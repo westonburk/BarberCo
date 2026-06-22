@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { OrnamentedHeading } from "@/components/OrnamentedHeading";
 
 export function ExperienceSection() {
   return (
@@ -16,12 +17,7 @@ export function ExperienceSection() {
         </div>
 
         <div className="md:order-2">
-          <p className="mb-4 text-sm uppercase tracking-[0.3em] text-accent">
-            The Experience
-          </p>
-          <h2 className="font-serif text-4xl tracking-wide md:text-5xl">
-            Ritual, Not Routine
-          </h2>
+          <OrnamentedHeading>Ritual, Not Routine</OrnamentedHeading>
           <p className="mt-6 leading-relaxed text-muted">
             From the moment you settle into the chair, the pace slows. A hot
             towel. A straight razor drawn with care. Products chosen for quality,

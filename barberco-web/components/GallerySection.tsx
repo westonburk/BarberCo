@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { OrnamentedHeading } from "@/components/OrnamentedHeading";
 
 const GALLERY_IMAGES = [
   { src: "/images/gallery/gallery-1.jpg", alt: "Barber working on a client's haircut" },
@@ -96,14 +97,9 @@ export function GallerySection() {
     <section className="px-6 py-12 md:py-16">
       <div className="mx-auto max-w-6xl">
         <header className="mb-8 text-center md:mb-10">
-          <p className="mb-4 text-sm uppercase tracking-[0.3em] text-accent">
-            Gallery
-          </p>
-          <h2 className="font-serif text-4xl tracking-wide md:text-5xl">
-            Inside the Shop
-          </h2>
+          <OrnamentedHeading align="center">Inside the Shop</OrnamentedHeading>
           <p className="mx-auto mt-4 max-w-md text-muted">
-            A glimpse of the atmosphere, the craft, and the details that define
+            A glimpse of the atmosphere and details that define
             Mike&apos;s.
           </p>
         </header>

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ExperienceSection } from "@/components/ExperienceSection";
 import { GallerySection } from "@/components/GallerySection";
 import { HoursLocationSection } from "@/components/HoursLocationSection";
+import { OrnamentedHeading } from "@/components/OrnamentedHeading";
 import { ServicesSection } from "@/components/ServicesSection";
 
 export default function Home() {
@@ -32,7 +33,7 @@ export default function Home() {
             href="/appointment"
             className="mt-10 inline-block border border-accent px-8 py-3 text-sm uppercase tracking-[0.2em] text-accent transition-colors hover:bg-accent hover:text-background"
           >
-            Reserve Your Chair
+            Book an Appointment
           </Link>
         </div>
       </section>
@@ -40,12 +41,7 @@ export default function Home() {
       <section className="relative -mt-28 px-6 pb-28 pt-10 md:pb-36 md:pt-14">
         <div className="mx-auto grid max-w-6xl items-center gap-12 md:grid-cols-2 md:gap-16">
           <div>
-            <p className="mb-4 text-sm uppercase tracking-[0.3em] text-accent">
-              The House
-            </p>
-            <h2 className="font-serif text-4xl tracking-wide md:text-5xl">
-              More Than a Haircut
-            </h2>
+            <OrnamentedHeading>More Than a Haircut</OrnamentedHeading>
             <p className="mt-6 leading-relaxed text-muted">
               Mike&apos;s has been a neighborhood institution for over fifty
               years — timeless cuts, hot towel shaves, and the kind of
