@@ -1,4 +1,5 @@
 import type { Hour, TimeSlot } from "./types";
+import { formatLocalDateTime } from "./format-local-datetime";
 
 const DAY_NAMES = [
   "Sunday",
@@ -44,7 +45,7 @@ function getHoursBetweenDates(start: Date, end: Date): TimeSlot[] {
 
   while (cursor <= end) {
     results.push({
-      value: cursor.toISOString(),
+      value: formatLocalDateTime(cursor),
       display: formatDisplayTime(cursor),
     });
     cursor.setHours(cursor.getHours() + 1);

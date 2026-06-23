@@ -2,10 +2,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { AppointmentForm } from "@/components/AppointmentForm";
 import { OrnamentedHeading } from "@/components/OrnamentedHeading";
+import { getHours } from "@/lib/get-hours";
 import { getServices } from "@/lib/get-services";
 
 export default async function AppointmentPage() {
-  const services = await getServices();
+  const [services, hours] = await Promise.all([getServices(), getHours()]);
 
   return (
     <main className="min-h-screen">
@@ -32,7 +33,7 @@ export default async function AppointmentPage() {
             chair.
           </p>
 
-          <AppointmentForm services={services} />
+          <AppointmentForm services={services} hours={hours} />
 
           <Link
             href="/"

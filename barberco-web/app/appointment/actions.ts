@@ -4,6 +4,7 @@ import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { redirect } from "next/navigation";
 import { ApiError } from "@/lib/api-client";
 import { createAppointment } from "@/lib/create-appointment";
+import { isLocalDateTimeString } from "@/lib/format-local-datetime";
 import { PHONE_PATTERN } from "@/lib/format-phone";
 import type { AppointmentFormState } from "@/lib/appointment-form-state";
 
@@ -40,8 +41,7 @@ export async function submitAppointment(
     return { error: "Select at least one service." };
   }
 
-  const dateTime = new Date(time);
-  if (Number.isNaN(dateTime.getTime())) {
+  if (!isLocalDateTimeString(time)) {
     return { error: "Invalid appointment time." };
   }
 
@@ -49,7 +49,7 @@ export async function submitAppointment(
     const appointment = await createAppointment({
       customerName: name,
       customerPhone: phone,
-      dateTime: dateTime.toISOString(),
+      dateTime: time,
       serviceIds,
     });
 

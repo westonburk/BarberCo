@@ -1,13 +1,14 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useEffect, useMemo, useState } from "react";
 import {
   initialAppointmentFormState,
   type AppointmentFormState,
 } from "@/lib/appointment-form-state";
+import { getValidTimesForDay } from "@/lib/appointment-times";
 import { formatPrice } from "@/lib/format-price";
 import { formatPhoneNumber } from "@/lib/format-phone";
-import type { Service, TimeSlot } from "@/lib/types";
+import type { Hour, Service } from "@/lib/types";
 import { submitAppointment } from "@/app/appointment/actions";
 
 function formatDateInput(date: Date): string {
@@ -22,9 +23,10 @@ const inputClassName =
 
 type AppointmentFormProps = {
   services: Service[];
+  hours: Hour[];
 };
 
-export function AppointmentForm({ services }: AppointmentFormProps) {
+export function AppointmentForm({ services, hours }: AppointmentFormProps) {
   const [state, formAction, isPending] = useActionState<
     AppointmentFormState,
     FormData
@@ -33,39 +35,18 @@ export function AppointmentForm({ services }: AppointmentFormProps) {
   const [phone, setPhone] = useState("");
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [date, setDate] = useState(() => formatDateInput(new Date()));
-  const [times, setTimes] = useState<TimeSlot[]>([]);
   const [time, setTime] = useState("");
-  const [loadingTimes, setLoadingTimes] = useState(true);
+
+  const times = useMemo(() => {
+    const selectedDate = new Date(`${date}T12:00:00`);
+    if (Number.isNaN(selectedDate.getTime())) {
+      return [];
+    }
+    return getValidTimesForDay(selectedDate, hours);
+  }, [date, hours]);
 
   useEffect(() => {
-    let cancelled = false;
-
-    async function loadTimes() {
-      setLoadingTimes(true);
-      setTime("");
-
-      try {
-        const response = await fetch(`/api/appointment/times?date=${date}`);
-        const data = (await response.json()) as { times?: TimeSlot[] };
-        if (!cancelled) {
-          setTimes(data.times ?? []);
-        }
-      } catch {
-        if (!cancelled) {
-          setTimes([]);
-        }
-      } finally {
-        if (!cancelled) {
-          setLoadingTimes(false);
-        }
-      }
-    }
-
-    loadTimes();
-
-    return () => {
-      cancelled = true;
-    };
+    setTime("");
   }, [date]);
 
   function toggleService(id: number) {
@@ -149,16 +130,12 @@ export function AppointmentForm({ services }: AppointmentFormProps) {
             name="time"
             required
             value={time}
-            disabled={loadingTimes || times.length === 0}
+            disabled={times.length === 0}
             onChange={(event) => setTime(event.target.value)}
             className={inputClassName}
           >
             <option value="">
-              {loadingTimes
-                ? "Loading times..."
-                : times.length === 0
-                  ? "No availability"
-                  : "Select a time"}
+              {times.length === 0 ? "No availability" : "Select a time"}
             </option>
             {times.map((slot) => (
               <option key={slot.value} value={slot.value}>

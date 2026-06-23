@@ -19,10 +19,6 @@ function getApiConfig() {
   return { baseUrl: baseUrl.replace(/\/$/, ""), apiKey };
 }
 
-export function isApiConfigured(): boolean {
-  return getApiConfig() !== null;
-}
-
 export async function apiFetch<T>(
   path: string,
   options: RequestInit = {},
