@@ -14,9 +14,14 @@ namespace BarberCo.DataAccess
     {
         public DataContext CreateDbContext(string[] args)
         {
+            // Match the runtime configuration in BarberCo.Api/Program.cs so the
+            // design-time model (and migration snapshot) reflect how the app actually runs.
+            AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
             IConfigurationRoot configuration = new ConfigurationBuilder()
                 .SetBasePath(Path.Combine(Directory.GetCurrentDirectory(), "../BarberCo.Api"))
                 .AddJsonFile("appsettings.json")
+                .AddJsonFile("appsettings.Development.json", optional: true)
                 .Build();
 
             var builder = new DbContextOptionsBuilder<DataContext>();
