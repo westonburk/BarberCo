@@ -6,6 +6,8 @@ import { HoursLocationSection } from "@/components/HoursLocationSection";
 import { OrnamentedHeading } from "@/components/OrnamentedHeading";
 import { ServicesSection } from "@/components/ServicesSection";
 
+export const dynamic = "force-dynamic";
+
 export default function Home() {
   return (
     <main>

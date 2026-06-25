@@ -5,6 +5,8 @@ import { OrnamentedHeading } from "@/components/OrnamentedHeading";
 import { getHours } from "@/lib/get-hours";
 import { getServices } from "@/lib/get-services";
 
+export const dynamic = "force-dynamic";
+
 export default async function AppointmentPage() {
   const [services, hours] = await Promise.all([getServices(), getHours()]);
 
