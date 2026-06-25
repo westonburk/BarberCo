@@ -92,12 +92,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Set up .NET 9
+        if: needs.detect.outputs.api_build == 'true'
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
       - name: Build EF migration bundle
         if: needs.detect.outputs.api_build == 'true'
         run: |
           set -euo pipefail
-          dotnet tool install --global dotnet-ef
+          dotnet tool install --global dotnet-ef --version 9.*
           export PATH="$PATH:$HOME/.dotnet/tools"
+          # restore so the bundle build has project.assets.json
+          dotnet restore BarberCo.Api/BarberCo.Api.csproj
           # stub appsettings.json so the design-time factory can load
           echo '{"ConnectionStrings":{"Default":"Host=localhost;Database=x;Username=x;Password=x"}}' > BarberCo.Api/appsettings.json
           dotnet ef migrations bundle \
