@@ -129,7 +129,15 @@ jobs:
           script: |
             set -e
             cd /opt/barberco
-            set -a; . ./.env; set +a
+
+            # Read only the values we need from .env WITHOUT shell-sourcing it.
+            # Sourcing breaks on special chars in secrets (e.g. & * $ in passwords).
+            get_env() { grep -E "^$1=" .env | head -n1 | cut -d= -f2- | tr -d '\r'; }
+            POSTGRES_DB=$(get_env POSTGRES_DB)
+            POSTGRES_USER=$(get_env POSTGRES_USER)
+            POSTGRES_PASSWORD=$(get_env POSTGRES_PASSWORD)
+            GHCR_USER=$(get_env GHCR_USER)
+            GHCR_PAT=$(get_env GHCR_PAT)
 
             # Log in to GHCR fresh each deploy (don't rely on persisted creds)
             echo "$GHCR_PAT" | docker login ghcr.io -u "$GHCR_USER" --password-stdin
