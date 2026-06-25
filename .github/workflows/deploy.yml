@@ -20,7 +20,6 @@ jobs:
       matrix: ${{ steps.set.outputs.matrix }}
       any: ${{ steps.set.outputs.any }}
       changed: ${{ steps.set.outputs.changed }}
-      api_build: ${{ steps.set.outputs.api_build }}
       web_version: ${{ steps.set.outputs.web_version }}
       api_version: ${{ steps.set.outputs.api_version }}
       mgmt_version: ${{ steps.set.outputs.mgmt_version }}
@@ -51,13 +50,10 @@ jobs:
           exists "$REGISTRY/barberco:$API_VERSION"            || add api        "$REGISTRY/barberco"            "$API_VERSION"  "."            "BarberCo.Api/Dockerfile"
           exists "$REGISTRY/barberco-management:$MGMT_VERSION" || add management "$REGISTRY/barberco-management" "$MGMT_VERSION" "."            "BarberCo.Management/Dockerfile"
 
-          API_BUILD=false; echo "$CHANGED" | grep -qw api && API_BUILD=true
-
           {
             echo "matrix={\"include\":[$INCLUDE]}"
             echo "any=$([ -n "$INCLUDE" ] && echo true || echo false)"
             echo "changed=$(echo $CHANGED | xargs)"
-            echo "api_build=$API_BUILD"
             echo "web_version=$WEB_VERSION"
             echo "api_version=$API_VERSION"
             echo "mgmt_version=$MGMT_VERSION"
@@ -84,56 +80,20 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-  # 3) Run migrations (if API changed) then deploy changed services
+  # 3) Deploy changed services (migrations run on API startup)
   deploy:
     needs: [detect, build]
     if: needs.detect.outputs.any == 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up .NET 9
-        if: needs.detect.outputs.api_build == 'true'
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: 9.0.x
-
-      - name: Build EF migration bundle
-        if: needs.detect.outputs.api_build == 'true'
-        run: |
-          set -euo pipefail
-          dotnet tool install --global dotnet-ef --version 9.*
-          export PATH="$PATH:$HOME/.dotnet/tools"
-          # restore so the bundle build has project.assets.json
-          dotnet restore BarberCo.Api/BarberCo.Api.csproj
-          # stub appsettings.json so the design-time factory can load
-          echo '{"ConnectionStrings":{"Default":"Host=localhost;Database=x;Username=x;Password=x"}}' > BarberCo.Api/appsettings.json
-          dotnet ef migrations bundle \
-            --project BarberCo.DataAccess \
-            --startup-project BarberCo.Api \
-            --configuration Release \
-            --self-contained -r linux-x64 \
-            -o efbundle --force
-
-      - name: Copy bundle to server
-        if: needs.detect.outputs.api_build == 'true'
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USERNAME }}
-          key: ${{ secrets.SSH_KEY }}
-          port: ${{ secrets.SSH_PORT }}
-          source: efbundle
-          target: /opt/barberco
-
-      - name: Migrate + deploy
+      - name: Deploy
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.SSH_PORT }}
-          envs: CHANGED,API_BUILD,WEB_VERSION,API_VERSION,MGMT_VERSION
+          envs: CHANGED,WEB_VERSION,API_VERSION,MGMT_VERSION
           script: |
             set -e
             cd /opt/barberco
@@ -141,9 +101,6 @@ jobs:
             # Read only the values we need from .env WITHOUT shell-sourcing it.
             # Sourcing breaks on special chars in secrets (e.g. & * $ in passwords).
             get_env() { grep -E "^$1=" .env | head -n1 | cut -d= -f2- | tr -d '\r'; }
-            POSTGRES_DB=$(get_env POSTGRES_DB)
-            POSTGRES_USER=$(get_env POSTGRES_USER)
-            POSTGRES_PASSWORD=$(get_env POSTGRES_PASSWORD)
             GHCR_USER=$(get_env GHCR_USER)
             GHCR_PAT=$(get_env GHCR_PAT)
 
@@ -157,16 +114,6 @@ jobs:
                 echo "$1=$2" >> .env
               fi
             }
-
-            # Migrate BEFORE bringing up the new API
-            if [ "$API_BUILD" = "true" ] && [ -f efbundle ]; then
-              chmod +x efbundle
-              docker run --rm --network barberco_default \
-                -v /opt/barberco/efbundle:/efbundle:ro \
-                mcr.microsoft.com/dotnet/runtime-deps:9.0 \
-                /efbundle --connection "Host=db;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}"
-              rm -f efbundle
-            fi
 
             for svc in $CHANGED; do
               case $svc in
@@ -184,7 +131,6 @@ jobs:
             docker image prune -f
         env:
           CHANGED: ${{ needs.detect.outputs.changed }}
-          API_BUILD: ${{ needs.detect.outputs.api_build }}
           WEB_VERSION: ${{ needs.detect.outputs.web_version }}
           API_VERSION: ${{ needs.detect.outputs.api_version }}
           MGMT_VERSION: ${{ needs.detect.outputs.mgmt_version }}
