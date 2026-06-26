@@ -1,4 +1,4 @@
-﻿using BarberCo.SharedLibrary.Dtos;
+using BarberCo.SharedLibrary.Dtos;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace BarberCo.DataAccess.Repositories
 {
-    public interface ITwillioRepo
+    public interface ITwilioRepo
     {
         Task SendSMSAsync(TextMessageDto message);
     }

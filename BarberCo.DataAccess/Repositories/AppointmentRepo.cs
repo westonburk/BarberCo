@@ -16,13 +16,13 @@ namespace BarberCo.DataAccess.Repositories
     public class AppointmentRepo : IAppointmentRepo
     {
         private readonly DataContext _context;
-        private readonly ITwillioRepo _twillioRepo;
+        private readonly ITwilioRepo _twilioRepo;
         private readonly IConfiguration _config;
 
-        public AppointmentRepo(DataContext context, ITwillioRepo twillioRepo, IConfiguration configuration)
+        public AppointmentRepo(DataContext context, ITwilioRepo twilioRepo, IConfiguration configuration)
         {
             _context = context;
-            _twillioRepo = twillioRepo;
+            _twilioRepo = twilioRepo;
             _config = configuration;
         }
 
@@ -83,7 +83,7 @@ namespace BarberCo.DataAccess.Repositories
         private async Task<string> SendConfirmationCodeAsync(string toPhoneNumber)
         {
             var code = GenerateConfirmationCode();
-            await _twillioRepo.SendSMSAsync(new TextMessageDto 
+            await _twilioRepo.SendSMSAsync(new TextMessageDto 
             { 
                 Message = code, ToPhoneNumber = toPhoneNumber
             });
