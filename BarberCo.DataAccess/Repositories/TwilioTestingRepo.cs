@@ -35,7 +35,7 @@ namespace BarberCo.DataAccess.Repositories
             using var content = new FormUrlEncodedContent(new Dictionary<string, string>
             {
                 ["chat_id"] = chatId,
-                ["text"] = dto.Message,
+                ["text"] = "SMS testing codes from barberco" + dto.Message,
                 ["disable_notification"] = "true"
             });
 
