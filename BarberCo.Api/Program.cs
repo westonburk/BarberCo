@@ -21,7 +21,12 @@ builder.Services.AddTransient<IBarberRepo, BarberRepo>();
 builder.Services.AddTransient<IHourRepo, HourRepo>();
 builder.Services.AddTransient<IServiceRepo, ServiceRepo>();
 builder.Services.AddTransient<IAppointmentRepo, AppointmentRepo>();
+
+#if DEBUG
+builder.Services.AddHttpClient<ITwilioRepo, TwilioTestingRepo>();
+#else
 builder.Services.AddHttpClient<ITwilioRepo, TwilioRepo>();
+#endif
 builder.Services.AddScoped<JwtHelper>();
 
 #if DEBUG == false
