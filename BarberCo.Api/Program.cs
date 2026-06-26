@@ -2,17 +2,13 @@ using BarberCo.Api.Auth;
 using BarberCo.DataAccess;
 using BarberCo.DataAccess.Repositories;
 using BarberCo.SharedLibrary.Models;
-using Microsoft.ApplicationInsights.AspNetCore.Extensions;
-using Microsoft.ApplicationInsights.AspNetCore.Logging;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using System.Text;
-using Npgsql;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,13 +24,6 @@ builder.Services.AddHttpClient<ITwilioRepo, TwilioTestingRepo>();
 builder.Services.AddHttpClient<ITwilioRepo, TwilioRepo>();
 #endif
 builder.Services.AddScoped<JwtHelper>();
-
-#if DEBUG == false
-builder.Logging
-    .AddApplicationInsights(
-    x => x.ConnectionString= builder.Configuration.GetSection("ApplicationInsights:ConnectionString").Get<string>(),
-    y => y.IncludeScopes = true);
-#endif
 
 var jwtKey = builder.Configuration.GetSection("Jwt:Key").Get<string>();
 var issuer = builder.Configuration.GetSection("Jwt:Issuer").Get<string>();
