@@ -2,10 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace BarberCo.DataAccess.Repositories
@@ -35,11 +32,12 @@ namespace BarberCo.DataAccess.Repositories
             using var content = new FormUrlEncodedContent(new Dictionary<string, string>
             {
                 ["chat_id"] = chatId,
-                ["text"] = "SMS testing codes from barberco" + dto.Message,
+                ["text"] = "SMS testing codes from barberco " + dto.Message,
                 ["disable_notification"] = "true"
             });
 
-            var response = await _http.PostAsync(url, content);
+            (await _http.PostAsync(url, content)).EnsureSuccessStatusCode();
+            
         }
     }
 }
