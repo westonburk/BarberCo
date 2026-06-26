@@ -8,7 +8,6 @@
 @inject IServiceService ServiceService
 @inject IAuthService AuthService
 @inject ISnackbar Snackbar
-@inject IDialogService DialogService
 
 <PageTitle>Appointments</PageTitle>
 
@@ -36,10 +35,14 @@
             </Header>
             <ChildContent>
                 <MudTabPanel Text="Upcoming" Icon="@Icons.Material.Filled.Event">
-                    @RenderAppointmentsTable(_appointments.Where(a => a.DateTime >= DateTime.Now).OrderBy(a => a.DateTime))
+                    <AppointmentsTable Appointments="@(_appointments.Where(a => a.DateTime >= DateTime.Now).OrderBy(a => a.DateTime))"
+                                       OnView="ViewAppointment"
+                                       OnDeleted="OnAppointmentDeleted" />
                 </MudTabPanel>
                 <MudTabPanel Text="Past" Icon="@Icons.Material.Filled.History">
-                    @RenderAppointmentsTable(_appointments.Where(a => a.DateTime < DateTime.Now).OrderByDescending(a => a.DateTime))
+                    <AppointmentsTable Appointments="@(_appointments.Where(a => a.DateTime < DateTime.Now).OrderByDescending(a => a.DateTime))"
+                                       OnView="ViewAppointment"
+                                       OnDeleted="OnAppointmentDeleted" />
                 </MudTabPanel>
             </ChildContent>
         </MudTabs>
@@ -291,33 +294,9 @@
         _dialogVisible = true;
     }
 
-    private async Task DeleteAppointment(Appointment appointment)
+    private void OnAppointmentDeleted(Appointment appointment)
     {
-        var confirmed = await DialogService.ShowMessageBox(
-            "Delete Appointment",
-            $"Delete the appointment for {appointment.CustomerName} on {appointment.DateTime:MMM d, yyyy h:mm tt}? This cannot be undone.",
-            yesText: "Delete",
-            cancelText: "Cancel");
-
-        if (confirmed != true) return;
-
-        try
-        {
-            var success = await AppointmentService.DeleteAppointmentAsync(appointment.Id);
-            if (success)
-            {
-                _appointments.Remove(appointment);
-                Snackbar.Add("Appointment deleted", Severity.Success);
-            }
-            else
-            {
-                Snackbar.Add("Failed to delete appointment", Severity.Error);
-            }
-        }
-        catch (Exception ex)
-        {
-            Snackbar.Add($"Error deleting appointment: {ex.Message}", Severity.Error);
-        }
+        _appointments.Remove(appointment);
     }
 
     private async Task SaveAppointment()
@@ -355,50 +334,4 @@
         }
     }
     
-    RenderFragment RenderAppointmentsTable(IEnumerable<Appointment> appointments) => __builder =>
-    {
-        <MudTable Items="appointments" Hover="true" Dense="true" Elevation="0" Breakpoint="Breakpoint.Sm">
-            <HeaderContent>
-                <MudTh>Date &amp; Time</MudTh>
-                <MudTh>Customer</MudTh>
-                <MudTh>Phone</MudTh>
-                <MudTh>Services</MudTh>
-                <MudTh>Created By</MudTh>
-                <MudTh>Created On</MudTh>
-                <MudTh Style="text-align:right">Actions</MudTh>
-            </HeaderContent>
-            <RowTemplate>
-                <MudTd DataLabel="Date & Time">@context.DateTime.ToString("g")</MudTd>
-                <MudTd DataLabel="Customer">@context.CustomerName</MudTd>
-                <MudTd DataLabel="Phone">@context.CustomerPhone</MudTd>
-                <MudTd DataLabel="Services">
-                    @foreach (var service in context.Services)
-                    {
-                        <MudChip Size="Size.Small" Color="Color.Primary" T="string" Class="ma-1">@service.Name</MudChip>
-                    }
-                </MudTd>
-                <MudTd DataLabel="Created By">@context.CreatedBy</MudTd>
-                <MudTd DataLabel="Created On">@context.CreatedOn.ToString("d")</MudTd>
-                <MudTd DataLabel="Actions" Style="text-align:right">
-                    <MudMenu Icon="@Icons.Material.Filled.MoreVert"
-                             Size="Size.Small"
-                             Dense="true"
-                             AnchorOrigin="Origin.BottomRight"
-                             TransformOrigin="Origin.TopRight">
-                        <MudMenuItem Icon="@Icons.Material.Filled.Visibility"
-                                     OnClick="@(() => ViewAppointment(context))">
-                            View Details
-                        </MudMenuItem>
-                        <MudMenuItem Icon="@Icons.Material.Filled.Delete"
-                                     OnClick="@(() => DeleteAppointment(context))">
-                            Delete
-                        </MudMenuItem>
-                    </MudMenu>
-                </MudTd>
-            </RowTemplate>
-            <PagerContent>
-                <MudTablePager />
-            </PagerContent>
-        </MudTable>
-    };
 }

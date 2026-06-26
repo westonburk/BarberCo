@@ -110,7 +110,7 @@
 </AuthorizeView>
 
 @* Day Detail Dialog *@
-<MudDialog @bind-Visible="_dayDialogVisible" Options="@(new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true })">
+<MudDialog @bind-Visible="_dayDialogVisible" Options="@(new DialogOptions { MaxWidth = MaxWidth.Large, FullWidth = true })">
     <TitleContent>
         <MudText Typo="Typo.h6">
             @_selectedDate?.ToString("MMMM d, yyyy")
@@ -119,30 +119,9 @@
     <DialogContent>
         @if (_selectedDayAppointments?.Any() == true)
         {
-            <MudStack Spacing="2">
-                @foreach (var appointment in _selectedDayAppointments.OrderBy(a => a.DateTime))
-                {
-                    <MudPaper Class="pa-3" Elevation="1" Outlined="true">
-                        <MudText Typo="Typo.subtitle2" Color="Color.Primary">
-                            @appointment.DateTime.ToString("h:mm tt")
-                        </MudText>
-                        <MudText Typo="Typo.body1">
-                            @appointment.CustomerName
-                        </MudText>
-                        <MudText Typo="Typo.body2" Color="Color.Secondary">
-                            @appointment.CustomerPhone
-                        </MudText>
-                        <div class="mt-2">
-                            @foreach (var service in appointment.Services)
-                            {
-                                <MudChip Size="Size.Small" Color="Color.Primary" T="string">
-                                    @service.Name
-                                </MudChip>
-                            }
-                        </div>
-                    </MudPaper>
-                }
-            </MudStack>
+            <AppointmentsTable Appointments="@_selectedDayAppointments.OrderBy(a => a.DateTime)"
+                               ShowActions="false"
+                               ShowPager="false" />
         }
         else
         {

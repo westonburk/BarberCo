@@ -1,0 +1,103 @@
+@using BarberCo.SharedLibrary.Services
+@inject IAppointmentService AppointmentService
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+
+<MudTable Items="Appointments" Hover="true" Dense="true" Elevation="0" Breakpoint="Breakpoint.Sm">
+    <HeaderContent>
+        <MudTh>Date &amp; Time</MudTh>
+        <MudTh>Customer</MudTh>
+        <MudTh>Phone</MudTh>
+        <MudTh>Services</MudTh>
+        <MudTh>Created By</MudTh>
+        <MudTh>Created On</MudTh>
+        @if (ShowActions)
+        {
+            <MudTh Style="text-align:right">Actions</MudTh>
+        }
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Date & Time">@context.DateTime.ToString("g")</MudTd>
+        <MudTd DataLabel="Customer">@context.CustomerName</MudTd>
+        <MudTd DataLabel="Phone">@context.CustomerPhone</MudTd>
+        <MudTd DataLabel="Services">
+            @foreach (var service in context.Services)
+            {
+                <MudChip Size="Size.Small" Color="Color.Primary" T="string" Class="ma-1">@service.Name</MudChip>
+            }
+        </MudTd>
+        <MudTd DataLabel="Created By">@context.CreatedBy</MudTd>
+        <MudTd DataLabel="Created On">@context.CreatedOn.ToString("d")</MudTd>
+        @if (ShowActions)
+        {
+            <MudTd DataLabel="Actions" Style="text-align:right">
+                <MudMenu Icon="@Icons.Material.Filled.MoreVert"
+                         Size="Size.Small"
+                         Dense="true"
+                         AnchorOrigin="Origin.BottomRight"
+                         TransformOrigin="Origin.TopRight">
+                    <MudMenuItem Icon="@Icons.Material.Filled.Visibility"
+                                 OnClick="@(() => OnView.InvokeAsync(context))">
+                        View Details
+                    </MudMenuItem>
+                    <MudMenuItem Icon="@Icons.Material.Filled.Delete"
+                                 OnClick="@(() => DeleteAppointment(context))">
+                        Delete
+                    </MudMenuItem>
+                </MudMenu>
+            </MudTd>
+        }
+    </RowTemplate>
+    <PagerContent>
+        @if (ShowPager)
+        {
+            <MudTablePager />
+        }
+    </PagerContent>
+</MudTable>
+
+@code {
+    [Parameter, EditorRequired]
+    public IEnumerable<Appointment> Appointments { get; set; } = Enumerable.Empty<Appointment>();
+
+    /// <summary>Show the row actions menu (View Details / Delete).</summary>
+    [Parameter] public bool ShowActions { get; set; } = true;
+
+    /// <summary>Show the table pager.</summary>
+    [Parameter] public bool ShowPager { get; set; } = true;
+
+    /// <summary>Raised when "View Details" is clicked.</summary>
+    [Parameter] public EventCallback<Appointment> OnView { get; set; }
+
+    /// <summary>Raised after an appointment is successfully deleted, so the parent can update its data.</summary>
+    [Parameter] public EventCallback<Appointment> OnDeleted { get; set; }
+
+    private async Task DeleteAppointment(Appointment appointment)
+    {
+        var confirmed = await DialogService.ShowMessageBox(
+            "Delete Appointment",
+            $"Delete the appointment for {appointment.CustomerName} on {appointment.DateTime:MMM d, yyyy h:mm tt}? This cannot be undone.",
+            yesText: "Delete",
+            cancelText: "Cancel");
+
+        if (confirmed != true) return;
+
+        try
+        {
+            var success = await AppointmentService.DeleteAppointmentAsync(appointment.Id);
+            if (success)
+            {
+                await OnDeleted.InvokeAsync(appointment);
+                Snackbar.Add("Appointment deleted", Severity.Success);
+            }
+            else
+            {
+                Snackbar.Add("Failed to delete appointment", Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error deleting appointment: {ex.Message}", Severity.Error);
+        }
+    }
+}
