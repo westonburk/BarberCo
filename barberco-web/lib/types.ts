@@ -30,3 +30,15 @@ export interface Appointment {
   customerPhone: string;
   dateTime: string;
 }
+
+export interface ConfirmAppointmentDto {
+  appointmentId: number;
+  confirmationCode: string;
+}
+
+export interface ConfirmedAppointment {
+  customerName: string;
+  customerPhone: string;
+  dateTime: string;
+  serviceIds: number[];
+}

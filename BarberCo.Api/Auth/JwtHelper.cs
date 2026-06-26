@@ -54,7 +54,7 @@ namespace BarberCo.Api.Auth
                 Token = token,
                 Barber = BarberDto.Get(barber),
                 Roles = roles.ToList(),
-                Issued = jwtToken.IssuedAt,
+                Issued = jwtToken.ValidFrom,
                 Expires = jwtToken.ValidTo
             };
 
