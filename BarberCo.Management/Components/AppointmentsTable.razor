@@ -3,58 +3,106 @@
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
 
-<MudTable Items="Appointments" Hover="true" Dense="true" Elevation="0" Breakpoint="Breakpoint.Sm">
-    <HeaderContent>
-        <MudTh>Date &amp; Time</MudTh>
-        <MudTh>Customer</MudTh>
-        <MudTh>Phone</MudTh>
-        <MudTh>Services</MudTh>
-        <MudTh>Created By</MudTh>
-        <MudTh>Created On</MudTh>
-        @if (ShowActions)
-        {
-            <MudTh Style="text-align:right">Actions</MudTh>
-        }
-    </HeaderContent>
-    <RowTemplate>
-        <MudTd DataLabel="Date & Time">@context.DateTime.ToString("g")</MudTd>
-        <MudTd DataLabel="Customer">@context.CustomerName</MudTd>
-        <MudTd DataLabel="Phone">@context.CustomerPhone</MudTd>
-        <MudTd DataLabel="Services">
-            @foreach (var service in context.Services)
+@* Desktop / tablet: full table (unchanged) *@
+<MudHidden Breakpoint="Breakpoint.SmAndDown">
+    <MudTable Items="Appointments" Hover="true" Dense="true" Elevation="0" Breakpoint="Breakpoint.None">
+        <HeaderContent>
+            <MudTh>Date &amp; Time</MudTh>
+            <MudTh>Customer</MudTh>
+            <MudTh>Phone</MudTh>
+            <MudTh>Services</MudTh>
+            <MudTh>Created By</MudTh>
+            <MudTh>Created On</MudTh>
+            @if (ShowActions)
             {
-                <MudChip Size="Size.Small" Color="Color.Primary" T="string" Class="ma-1">@service.Name</MudChip>
+                <MudTh Style="text-align:right">Actions</MudTh>
             }
-        </MudTd>
-        <MudTd DataLabel="Created By">@context.CreatedBy</MudTd>
-        <MudTd DataLabel="Created On">@context.CreatedOn.ToString("d")</MudTd>
-        @if (ShowActions)
-        {
-            <MudTd DataLabel="Actions" Style="text-align:right">
-                <MudMenu Icon="@Icons.Material.Filled.MoreVert"
-                         Size="Size.Small"
-                         Dense="true"
-                         AnchorOrigin="Origin.BottomRight"
-                         TransformOrigin="Origin.TopRight">
-                    <MudMenuItem Icon="@Icons.Material.Filled.Visibility"
-                                 OnClick="@(() => OnView.InvokeAsync(context))">
-                        View Details
-                    </MudMenuItem>
-                    <MudMenuItem Icon="@Icons.Material.Filled.Delete"
-                                 OnClick="@(() => DeleteAppointment(context))">
-                        Delete
-                    </MudMenuItem>
-                </MudMenu>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Date & Time">@context.DateTime.ToString("g")</MudTd>
+            <MudTd DataLabel="Customer">@context.CustomerName</MudTd>
+            <MudTd DataLabel="Phone">@context.CustomerPhone</MudTd>
+            <MudTd DataLabel="Services">
+                @foreach (var service in context.Services)
+                {
+                    <MudChip Size="Size.Small" Color="Color.Primary" T="string" Class="ma-1">@service.Name</MudChip>
+                }
             </MudTd>
-        }
-    </RowTemplate>
-    <PagerContent>
-        @if (ShowPager)
+            <MudTd DataLabel="Created By">@context.CreatedBy</MudTd>
+            <MudTd DataLabel="Created On">@context.CreatedOn.ToString("d")</MudTd>
+            @if (ShowActions)
+            {
+                <MudTd DataLabel="Actions" Style="text-align:right">
+                    <MudMenu Icon="@Icons.Material.Filled.MoreVert"
+                             Size="Size.Small"
+                             Dense="true"
+                             AnchorOrigin="Origin.BottomRight"
+                             TransformOrigin="Origin.TopRight">
+                        <MudMenuItem Icon="@Icons.Material.Filled.Visibility"
+                                     OnClick="@(() => OnView.InvokeAsync(context))">
+                            View Details
+                        </MudMenuItem>
+                        <MudMenuItem Icon="@Icons.Material.Filled.Delete"
+                                     OnClick="@(() => DeleteAppointment(context))">
+                            Delete
+                        </MudMenuItem>
+                    </MudMenu>
+                </MudTd>
+            }
+        </RowTemplate>
+        <PagerContent>
+            @if (ShowPager)
+            {
+                <MudTablePager />
+            }
+        </PagerContent>
+    </MudTable>
+</MudHidden>
+
+@* Mobile: compact card list *@
+<MudHidden Breakpoint="Breakpoint.MdAndUp">
+    <MudStack Spacing="2">
+        @foreach (var appointment in Appointments)
         {
-            <MudTablePager />
+            <MudPaper Class="pa-3" Outlined="true">
+                <div class="d-flex justify-space-between align-start">
+                    <MudText Typo="Typo.subtitle2" Color="Color.Primary">
+                        @appointment.DateTime.ToString("g")
+                    </MudText>
+                    @if (ShowActions)
+                    {
+                        <MudMenu Icon="@Icons.Material.Filled.MoreVert"
+                                 Size="Size.Small"
+                                 Dense="true"
+                                 AnchorOrigin="Origin.BottomLeft"
+                                 TransformOrigin="Origin.TopRight">
+                            <MudMenuItem Icon="@Icons.Material.Filled.Visibility"
+                                         OnClick="@(() => OnView.InvokeAsync(appointment))">
+                                View Details
+                            </MudMenuItem>
+                            <MudMenuItem Icon="@Icons.Material.Filled.Delete"
+                                         OnClick="@(() => DeleteAppointment(appointment))">
+                                Delete
+                            </MudMenuItem>
+                        </MudMenu>
+                    }
+                </div>
+                <MudText Typo="Typo.body1" Class="mt-1">
+                    <strong>@appointment.CustomerName</strong>
+                </MudText>
+                <MudText Typo="Typo.body2" Color="Color.Secondary">
+                    @appointment.CustomerPhone
+                </MudText>
+                <div class="d-flex flex-wrap mt-2" style="gap: 0.25rem;">
+                    @foreach (var service in appointment.Services)
+                    {
+                        <MudChip Size="Size.Small" Color="Color.Primary" T="string" Class="ma-0">@service.Name</MudChip>
+                    }
+                </div>
+            </MudPaper>
         }
-    </PagerContent>
-</MudTable>
+    </MudStack>
+</MudHidden>
 
 @code {
     [Parameter, EditorRequired]
