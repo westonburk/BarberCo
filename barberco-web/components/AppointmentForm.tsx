@@ -54,16 +54,12 @@ export function AppointmentForm({ services, hours }: AppointmentFormProps) {
     FormData
   >(submitAppointment, initialAppointmentFormState);
 
-  const [confirmState, confirmAction, isConfirming] = useActionState<
-    ConfirmFormState,
-    FormData
-  >(confirmAppointment, initialConfirmFormState);
-
   const [phone, setPhone] = useState("");
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [date, setDate] = useState(() => formatDateInput(new Date()));
   const [time, setTime] = useState("");
   const [showConfirm, setShowConfirm] = useState(false);
+  const [confirmed, setConfirmed] = useState<ConfirmedAppointment | null>(null);
 
   const times = useMemo(() => {
     const selectedDate = new Date(`${date}T12:00:00`);
@@ -91,12 +87,9 @@ export function AppointmentForm({ services, hours }: AppointmentFormProps) {
     );
   }
 
-  if (confirmState.confirmed) {
+  if (confirmed) {
     return (
-      <ConfirmedAppointmentView
-        confirmed={confirmState.confirmed}
-        services={services}
-      />
+      <ConfirmedAppointmentView confirmed={confirmed} services={services} />
     );
   }
 
@@ -231,11 +224,10 @@ export function AppointmentForm({ services, hours }: AppointmentFormProps) {
 
       {showConfirm && bookingState.appointmentId != null && (
         <ConfirmationCodeModal
+          key={bookingState.appointmentId}
           appointmentId={bookingState.appointmentId}
           phone={phone}
-          confirmAction={confirmAction}
-          isConfirming={isConfirming}
-          error={confirmState.error}
+          onConfirmed={setConfirmed}
           onBack={() => setShowConfirm(false)}
         />
       )}
@@ -246,21 +238,30 @@ export function AppointmentForm({ services, hours }: AppointmentFormProps) {
 type ConfirmationCodeModalProps = {
   appointmentId: number;
   phone: string;
-  confirmAction: (formData: FormData) => void;
-  isConfirming: boolean;
-  error?: string;
+  onConfirmed: (confirmed: ConfirmedAppointment) => void;
   onBack: () => void;
 };
 
 function ConfirmationCodeModal({
   appointmentId,
   phone,
-  confirmAction,
-  isConfirming,
-  error,
+  onConfirmed,
   onBack,
 }: ConfirmationCodeModalProps) {
+  const [confirmState, confirmAction, isConfirming] = useActionState<
+    ConfirmFormState,
+    FormData
+  >(confirmAppointment, initialConfirmFormState);
+
   const [code, setCode] = useState("");
+
+  useEffect(() => {
+    if (confirmState.confirmed) {
+      onConfirmed(confirmState.confirmed);
+    }
+  }, [confirmState.confirmed, onConfirmed]);
+
+  const failed = Boolean(confirmState.error);
 
   return (
     <div
@@ -279,69 +280,79 @@ function ConfirmationCodeModal({
         >
           Enter Your Code
         </h2>
-        <p className="mt-4 text-sm text-muted">
-          We sent a 6-digit confirmation code by text
-          {phone ? (
-            <>
-              {" "}
-              to <span className="text-foreground">{phone}</span>
-            </>
-          ) : null}
-          . Enter it below to lock in your appointment.
-        </p>
 
-        <form action={confirmAction} className="mt-6 space-y-5">
-          {error && (
+        {failed ? (
+          <div className="mt-6 space-y-6">
             <div
               className="border border-red-400/40 bg-red-950/20 px-4 py-3 text-sm text-red-300"
               role="alert"
             >
-              {error}
+              {confirmState.error}
             </div>
-          )}
-
-          <input type="hidden" name="appointmentId" value={appointmentId} />
-
-          <div>
-            <label htmlFor="code" className="mb-2 block text-sm text-muted">
-              Confirmation code
-            </label>
-            <input
-              id="code"
-              name="code"
-              type="text"
-              inputMode="numeric"
-              autoComplete="one-time-code"
-              required
-              autoFocus
-              value={code}
-              onChange={(event) =>
-                setCode(event.target.value.replace(/\D/g, "").slice(0, 6))
-              }
-              placeholder="123456"
-              maxLength={6}
-              className={`${inputClassName} text-center text-2xl tracking-[0.6em]`}
-            />
+            <div className="flex justify-center">
+              <button
+                type="button"
+                onClick={onBack}
+                className="w-full border border-foreground/15 px-8 py-3 text-sm uppercase tracking-[0.2em] text-muted transition-colors hover:border-foreground/30 hover:text-foreground sm:w-auto"
+              >
+                Back
+              </button>
+            </div>
           </div>
+        ) : (
+          <>
+            <p className="mt-4 text-sm text-muted">
+              We sent a 6-digit confirmation code by text
+              {phone ? (
+                <>
+                  {" "}
+                  to <span className="text-foreground">{phone}</span>
+                </>
+              ) : null}
+              . Enter it below to lock in your appointment.
+            </p>
 
-          <div className="flex flex-col gap-3 sm:flex-row-reverse">
-            <button
-              type="submit"
-              disabled={isConfirming || code.length !== 6}
-              className="w-full border border-accent px-8 py-3 text-sm uppercase tracking-[0.2em] text-accent transition-colors hover:bg-accent hover:text-background disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
-            >
-              {isConfirming ? "Confirming..." : "Confirm"}
-            </button>
-            <button
-              type="button"
-              onClick={onBack}
-              disabled={isConfirming}
-              className="w-full border border-foreground/15 px-8 py-3 text-sm uppercase tracking-[0.2em] text-muted transition-colors hover:border-foreground/30 hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
-            >
-              Back
-            </button>
-          </div>
-        </form>
+            <form action={confirmAction} className="mt-6 space-y-5">
+              <input
+                type="hidden"
+                name="appointmentId"
+                value={appointmentId}
+              />
+
+              <div>
+                <label htmlFor="code" className="mb-2 block text-sm text-muted">
+                  Confirmation code
+                </label>
+                <input
+                  id="code"
+                  name="code"
+                  type="text"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  required
+                  autoFocus
+                  value={code}
+                  onChange={(event) =>
+                    setCode(event.target.value.replace(/\D/g, "").slice(0, 6))
+                  }
+                  placeholder="123456"
+                  maxLength={6}
+                  className={`${inputClassName} text-center text-2xl tracking-[0.6em]`}
+                />
+              </div>
+
+              <div className="flex justify-center">
+                <button
+                  type="submit"
+                  disabled={isConfirming || code.length !== 6}
+                  className="w-full border border-accent px-8 py-3 text-sm uppercase tracking-[0.2em] text-accent transition-colors hover:bg-accent hover:text-background disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+                >
+                  {isConfirming ? "Confirming..." : "Confirm"}
+                </button>
+              </div>
+            </form>
+          </>
+        )}
       </div>
     </div>
   );
