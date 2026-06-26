@@ -66,7 +66,7 @@ namespace BarberCo.Api.Controllers
             try
             {
                 // TODO: this could be refactored out, and put into dependcy injection sometime, if it needs to be used again
-                var createdBy = User.FindFirstValue(ClaimTypes.Name) + " - " + User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var createdBy = User.FindFirstValue(ClaimTypes.Name);
 
                 var result = await _apptRepo.CreateAppointmentManagementAsync(newAppt, createdBy, token);
                 if (result is null)

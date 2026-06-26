@@ -70,14 +70,19 @@ namespace BarberCo.SharedLibrary.Services
             return results;
         }
 
-        public Task<Appointment> SubmitAppointmentAsync(AppointmentUpdateDto newAppointment)
+        public Task<int> SubmitAppointmentAsync(AppointmentUpdateDto newAppointment)
         {
-            return _apiService.PostAsync<AppointmentUpdateDto, Appointment>("appointment", newAppointment);
+            return _apiService.PostAsync<AppointmentUpdateDto, int>("appointment/create/management", newAppointment);
         }
 
         public Task<List<Appointment>> GetAppointmentsAsync()
         {
             return _apiService.GetAsync<List<Appointment>>("appointment");
+        }
+
+        public Task<bool> DeleteAppointmentAsync(int id)
+        {
+            return _apiService.DeleteAsync($"appointment/{id}");
         }
     }
 }

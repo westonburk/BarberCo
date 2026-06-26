@@ -158,9 +158,9 @@
             apt.CustomerPhone = formData.Phone;
             apt.DateTime = new DateTime(formData.Date.Year, formData.Date.Month, formData.Date.Day, formData.Time.Value.Hour, 0, 0);
             apt.ServiceIds = formData.SelectedServices.Select(x => x.Id).ToList();
-            var newApt = await AppointmentService.SubmitAppointmentAsync(apt);
+            await AppointmentService.SubmitAppointmentAsync(apt);
 
-            Navigation.NavigateTo($"/appointment-success/{newApt.DateTime:s}");
+            Navigation.NavigateTo($"/appointment-success/{apt.DateTime:s}");
         }
         catch (HttpRequestException ex)
         {

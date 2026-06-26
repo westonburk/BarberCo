@@ -112,6 +112,7 @@ namespace BarberCo.DataAccess.Repositories
         {
             return _context.Appointments
                 .Include(x => x.Services)
+                .Where(x => x.ConfirmedOn != null)
                 .ToListAsync(token);
 
         }
