@@ -226,7 +226,6 @@ export function AppointmentForm({ services, hours }: AppointmentFormProps) {
         <ConfirmationCodeModal
           key={bookingState.appointmentId}
           appointmentId={bookingState.appointmentId}
-          phone={phone}
           onConfirmed={setConfirmed}
           onBack={() => setShowConfirm(false)}
         />
@@ -237,14 +236,14 @@ export function AppointmentForm({ services, hours }: AppointmentFormProps) {
 
 type ConfirmationCodeModalProps = {
   appointmentId: number;
-  phone: string;
   onConfirmed: (confirmed: ConfirmedAppointment) => void;
   onBack: () => void;
 };
 
+const POC_CONFIRMATION_CODE = "111111";
+
 function ConfirmationCodeModal({
   appointmentId,
-  phone,
   onConfirmed,
   onBack,
 }: ConfirmationCodeModalProps) {
@@ -253,7 +252,7 @@ function ConfirmationCodeModal({
     FormData
   >(confirmAppointment, initialConfirmFormState);
 
-  const [code, setCode] = useState("");
+  const [code, setCode] = useState(POC_CONFIRMATION_CODE);
 
   useEffect(() => {
     if (confirmState.confirmed) {
@@ -301,16 +300,31 @@ function ConfirmationCodeModal({
           </div>
         ) : (
           <>
-            <p className="mt-4 text-sm text-muted">
-              We sent a 6-digit confirmation code by text
-              {phone ? (
-                <>
-                  {" "}
-                  to <span className="text-foreground">{phone}</span>
-                </>
-              ) : null}
-              . Enter it below to lock in your appointment.
-            </p>
+            <div className="mt-4 flex items-start gap-3 border border-green-500/40 bg-green-500/10 px-4 py-3 text-sm text-green-200">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                className="mt-0.5 h-5 w-5 shrink-0 text-green-400"
+                aria-hidden="true"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"
+                />
+              </svg>
+              <p>
+                This proof of concept doesn&apos;t have a Twilio SMS account set
+                up. Use{" "}
+                <span className="font-medium text-green-100">
+                  {POC_CONFIRMATION_CODE}
+                </span>{" "}
+                for confirmation.
+              </p>
+            </div>
 
             <form action={confirmAction} className="mt-6 space-y-5">
               <input
