@@ -93,12 +93,7 @@ namespace BarberCo.Api.Controllers
         {
             try
             {
-#if DEBUG
                 var result = await _apptRepo.CreateAppointmentWebAsync(newAppt, token);
-#else
-                // No Twilio account set up so use management method to avoid sms
-                var result = await _apptRepo.CreateAppointmentManagementAsync(newAppt, "Website", token);
-#endif
 
                 return Ok(result.Id);
             }
