@@ -129,13 +129,55 @@ namespace BarberCo.DataAccess.Repositories
 
         public async Task<AppointmentUpdateDto?> ConfirmAppointmentAsync(AppointmentConfirmationDto dto, CancellationToken token)
         {
+            //var appt = await GetAppointmentByIdAsync(dto.AppointmentId, token);
+            //AppointmentUpdateDto result = null;
+
+            //if (appt is null ||
+            //    appt.ConfirmationFailed ||
+            //    DateTime.Now - appt.CreatedOn > TimeSpan.FromMinutes(5) ||
+            //    appt.ConfirmedOn != null)
+            //{
+            //    return null;
+            //}
+
+            //var hash = HashCode(dto.ConfirmationCode);
+
+            //var providedHashBytes = Convert.FromBase64String(hash);
+            //var storedHashBytes = appt.ConfirmationCodeHash is null
+            //    ? Array.Empty<byte>()
+            //    : Convert.FromBase64String(appt.ConfirmationCodeHash);
+
+            //if (CryptographicOperations.FixedTimeEquals(storedHashBytes, providedHashBytes))
+            //{
+            //    appt.ConfirmedOn = DateTime.Now;
+            //    result = new AppointmentUpdateDto
+            //    {
+            //        CustomerName = appt.CustomerName,
+            //        CustomerPhone = appt.CustomerPhone,
+            //        DateTime = appt.DateTime,
+            //        ServiceIds = appt.Services.Select(x => x.Id).ToList()
+            //    };
+
+            //}
+            //else
+            //{
+            //    appt.ConfirmationFailed = true;
+            //}
+
+            //await _context.SaveChangesAsync(token);
+            //return result;
+
+
+
             var appt = await GetAppointmentByIdAsync(dto.AppointmentId, token);
             AppointmentUpdateDto result = null;
 
             if (appt is null ||
                 appt.ConfirmationFailed ||
-                DateTime.Now - appt.CreatedOn > TimeSpan.FromMinutes(5) ||
-                appt.ConfirmedOn != null)
+                DateTime.Now - appt.CreatedOn > TimeSpan.FromMinutes(5)
+                 // don't check confirmed on
+                //appt.ConfirmedOn != null)
+                )
             {
                 return null;
             }
