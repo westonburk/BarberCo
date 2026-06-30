@@ -1,4 +1,4 @@
-﻿@page "/login"
+@page "/login"
 @inject IAuthService AuthService
 @inject NavigationManager Navigation
 
@@ -6,7 +6,7 @@
     <MudPaper Elevation="3" Class="pa-8">
         <MudText Typo="Typo.h4" Class="mb-6" Align="Align.Center">Login</MudText>
         
-        <MudForm @ref="form" @bind-IsValid="@valid" @bind-Errors="@errors">
+        <MudForm>
             <MudTextField @bind-Value="username" 
                           Label="Username" 
                           Required="true" 
@@ -32,7 +32,7 @@
                        Color="Color.Primary" 
                        FullWidth="true" 
                        OnClick="HandleLogin" 
-                       Disabled="!valid || loading">
+                       Disabled="!CanSubmit || loading">
                 @if (loading)
                 {
                     <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
@@ -47,10 +47,79 @@
     private string username = "";
     private string password = "";
     private string error = "";
-    private bool valid;
     private bool loading;
-    private string[] errors = { };
-    private MudForm form;
+
+    private bool CanSubmit =>
+        !string.IsNullOrWhiteSpace(username) && !string.IsNullOrWhiteSpace(password);
+
+    protected override void OnInitialized()
+    {
+        ApplyDemoCredentialsFromQuery();
+    }
+
+    /// <summary>
+    /// Pre-fill credentials from the URL so portfolio visitors can try demo accounts
+    /// without copy-pasting. Supports ?demo=admin|barber or ?username=…&amp;password=….
+    /// </summary>
+    private void ApplyDemoCredentialsFromQuery()
+    {
+        var demo = GetQueryParam(Navigation.Uri, "demo");
+
+        if (!string.IsNullOrEmpty(demo))
+        {
+            switch (demo.ToLowerInvariant())
+            {
+                case "admin":
+                    username = "MikeBrenman";
+                    password = "slowly-wood-chocolateW9";
+                    return;
+                case "barber":
+                    username = "JoeLouden";
+                    password = "oak-water-cougarD4";
+                    return;
+            }
+        }
+
+        var queryUsername = GetQueryParam(Navigation.Uri, "username");
+        if (!string.IsNullOrEmpty(queryUsername))
+        {
+            username = queryUsername;
+        }
+
+        var queryPassword = GetQueryParam(Navigation.Uri, "password");
+        if (!string.IsNullOrEmpty(queryPassword))
+        {
+            password = queryPassword;
+        }
+    }
+
+    private static string? GetQueryParam(string uri, string key)
+    {
+        var queryStart = uri.IndexOf('?', StringComparison.Ordinal);
+        if (queryStart < 0)
+        {
+            return null;
+        }
+
+        var query = uri[(queryStart + 1)..];
+        var hashIndex = query.IndexOf('#', StringComparison.Ordinal);
+        if (hashIndex >= 0)
+        {
+            query = query[..hashIndex];
+        }
+
+        foreach (var pair in query.Split('&', StringSplitOptions.RemoveEmptyEntries))
+        {
+            var parts = pair.Split('=', 2);
+            if (parts.Length == 2 &&
+                parts[0].Equals(key, StringComparison.OrdinalIgnoreCase))
+            {
+                return Uri.UnescapeDataString(parts[1]);
+            }
+        }
+
+        return null;
+    }
 
     private async Task HandleLogin()
     {
